@@ -1,0 +1,116 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+# Disable automatic pipeline runs for now. 
+trigger: none
+  
+parameters:
+  - name: ResourceGroupName
+    displayName: Resource Group
+    type: string
+    default: <enter name>
+  - name: DeleteResourceGroup
+    displayName: Delete Resource Group
+    type: boolean 
+    default: false
+  - name: Location 
+    type: string
+    default: westeurope
+    values:
+      - westeurope
+      - northeurope
+
+variables:
+  deployAks: $[eq(variables['AksDeployment'], 'yes')]
+  deployIot: $[eq(variables['IotDeployment'], 'yes')]
+  AksName: 'demo-aks'
+  ShareName: 'demoshare'
+  Location: ${{ parameters.Location }}
+  ${{ if eq( variables['Build.Reason'], 'Schedule' ) }}: 
+    ResourceGroupName: rg-nightly-demo
+  ${{ if ne( variables['Build.Reason'], 'Schedule' ) }}: 
+    ResourceGroupName: ${{ parameters.ResourceGroupName }}
+  ${{ if eq( variables['Build.Reason'], 'Schedule' ) }}: 
+    DeleteResourceGroup: true
+  ${{ if ne( variables['Build.Reason'], 'Schedule' ) }}: 
+    DeleteResourceGroup: ${{ parameters.DeleteResourceGroup }}
+  
+stages:
+- stage: 'Infra'
+  condition: or(eq(variables.deployAks, 'true'), eq(variables.deployIot, 'true'))
+  displayName: 'Create Azure test infrastructure'
+  jobs: 
+  - job: 'Infra'
+    displayName: 'Build Azure resources'
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: AzureCLI@2
+      displayName: 'Upgrade Bicep'
+      inputs:
+        azureSubscription: $(ServiceConnectionName)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: 'az bicep upgrade'  
+
+    - task: AzureCLI@2
+      displayName: 'Build resources using Bicep'
+      inputs:
+        azureSubscription: $(ServiceConnectionName)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az deployment sub create \
+            --name $(Build.BuildNumber) \
+            --location $(Location) \
+            --template-file Prod/pipeline/main.bicep \
+            --parameters resourceGroupName=$(ResourceGroupName) \
+                         environmentType=$(EnvironmentType) \
+                         aksDeployment=$(AksDeployment) \
+                         iotDeployment=$(IotDeployment) \
+                         aksClientId=$(AksClientId) \
+                         aksClientSecret=$(AksClientSecret) \
+                         fileShareType=$(FileShareType) \
+                         dpsDeployment=$(DpsDeployment) || exit 1
+
+          deploymentoutputs=$(az deployment sub show \
+                                --name $(Build.BuildNumber) \
+                                --query properties.outputs)
+
+          echo 'Publish output variables as artifacts'
+          mkdir -p $(Pipeline.Workspace)/variables
+          echo $deploymentoutputs | jq -c '. | to_entries[] | [.key, .value.value]' |
+            while IFS=$"\n" read -r c; do
+              outputname=$(echo "$c" | jq -r '.[0]')
+              outputvalue=$(echo "$c" | jq -r '.[1]')
+              echo "setting variable $outputname=$outputvalue"
+              echo "##vso[task.setvariable variable=$outputname]$outputvalue"
+              echo $outputvalue > $(Pipeline.Workspace)/variables/$outputname
+            done
+
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish Bicep output as an artifact'
+      inputs:
+        targetPath: $(Pipeline.Workspace)/variables
+        artifactType: 'pipeline'
+        artifactName: variables
+
+- stage: cleanup
+  condition: and(succeeded(), eq(variables.DeleteResourceGroup, 'true'))
+  displayName: "Delete Resources"
+  jobs:
+    - job: cleanup
+      pool:
+        vmImage: windows-latest
+      steps:
+      - task: AzurePowerShell@5
+        displayName: "Delete Resource Group"
+        inputs:
+          azureSubscription: $(ServiceConnectionName)
+          azurePowerShellVersion: 'latestVersion'
+          scriptType: 'InlineScript'
+          inline: |
+            Write-Host "Deleting Resource group '$(ResourceGroupName)'..."
+            Get-AzResourceGroup -Name "$(ResourceGroupName)" | Remove-AzResourceGroup -Force
