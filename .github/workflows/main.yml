@@ -56,7 +56,7 @@ jobs:
             az deployment sub create \
               --name $GITHUB_WORKFLOW.$GITHUB_RUN_NUMBER \
               --location $LOCATION \
-              --template-file Prod/pipeline/main.bicep \
+              --template-file $GITHUB_WORKSPACE/Prod/pipeline/main.bicep \
               --parameters resourceGroupName=$RESOURCE_GROUP_NAME \
                            environmentType=$ENVIRONMENT_TYPE \
                            aksDeployment=$AKS_DEPLOYMENT \
