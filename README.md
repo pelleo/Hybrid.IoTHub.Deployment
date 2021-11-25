@@ -1,1 +1,1 @@
-# Hybrid.IoTHub.Deployment# Hybrid.IotHub.Deploytment
+# Hybrid.IoTHub.Deployment
