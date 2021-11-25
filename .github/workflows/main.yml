@@ -54,7 +54,7 @@ jobs:
         with:
           inlineScript: |
             az deployment sub create \
-              --name $GITHUB_WORKFLOW.$GITHUB_RUN_NUMBER \
+              --name AKS_IoT_deploy \
               --location $LOCATION \
               --template-file $GITHUB_WORKSPACE/Prod/pipeline/main.bicep \
               --parameters resourceGroupName=$RESOURCE_GROUP_NAME \
