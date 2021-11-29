@@ -62,6 +62,7 @@ jobs:
                            environmentType=$ENVIRONMENT_TYPE \
                            aksDeployment=$AKS_DEPLOYMENT \
                            iotDeployment=$IOT_DEPLOYMENT \
+                           vmDeployment=$VM_DEPLOYMENT
                            aksClientId=${{ secrets.AKS_CLIENT_ID }} \
                            aksClientSecret=${{ secrets.AKS_CLIENT_SECRET }} \
                            fileShareType=$FILE_SHARE_TYPE \
@@ -73,5 +74,6 @@ jobs:
           ENVIRONMENT_TYPE: dev
           AKS_DEPLOYMENT: yes
           IOT_DEPLOYMENT: yes
+          VM_DEPLOYMENT: yes
           DPS_DEPLOYMENT: no
           FILE_SHARE_TYPE: SMB
