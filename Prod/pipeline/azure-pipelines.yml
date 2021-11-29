@@ -14,7 +14,7 @@ parameters:
   - name: OnpremResourceGroupName
     displayName: Onpremises Resource Group
     type: string
-    default: rg-omprem-demo
+    default: rg-onprem-demo
   - name: DeleteResourceGroup
     displayName: Delete Resource Group
     type: boolean 
@@ -72,7 +72,7 @@ stages:
             --location $(Location) \
             --template-file Prod/pipeline/main.bicep \
             --parameters resourceGroupName=$(ResourceGroupName) \
-                         onpremResourceGroupName=$(OnpremResourceGroupName)
+                         onpremResourceGroupName=$(OnpremResourceGroupName) \
                          environmentType=$(EnvironmentType) \
                          aksDeployment=$(AksDeployment) \
                          iotDeployment=$(IotDeployment) \
