@@ -34,7 +34,7 @@ param linuxAdminUsername string
 @description('Configure all linux machines with the SSH RSA public key string. Your key should include three parts, for example \'ssh-rsa AAAAB...snip...UcyupgH azureuser@linuxvm\'')
 param sshRSAPublicKey string
 
-@description('Name of demo storage account including unique suffix')
+@description('Storage account prefix')
 param storageAccountNamePrefix string
 
 @minLength(3)
@@ -46,7 +46,7 @@ param fileShareName string
   'SMB'
   'NFS'
 ])
-@description('Conditional IoT deployment.  Must be yes or no.')
+@description('Fileshare type.  Must be SMB or NFS.')
 param fileShareType string
 
 @description('VNet name')
@@ -75,7 +75,7 @@ var storageAccountName = '${storageAccountNamePrefix}${resourceNameSuffix}'
 var dnsPrefix = '${dnsLabelPrefix}-${resourceNameSuffix}'
 var nfs =  (fileShareType == 'NFS') ? true : false
 
-// Resources
+// Create AKS cluster
 resource aks 'Microsoft.ContainerService/managedClusters@2021-05-01' = {
   name: clusterName
   location: location
@@ -120,6 +120,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2021-05-01' = {
   }
 }
 
+// Create virtual network
 resource vnet 'Microsoft.Network/virtualNetworks@2021-03-01' = if (nfs) {
   name: vnetName
   location: location
@@ -133,6 +134,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-03-01' = if (nfs) {
   }
 }
 
+// Create subnet
 resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-03-01' = if (nfs) {
   parent: vnet
   name: subnetName
@@ -142,6 +144,7 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-03-01' = if (nfs
   }
 }
 
+// Create storage account
 var storageAccountSkuName = (environmentType == 'prod') ? 'Premium_ZRS' : 'Premium_LRS'
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
@@ -167,11 +170,13 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   }
 }
 
+// Create file service
 resource fileService 'Microsoft.Storage/storageAccounts/fileServices@2021-04-01' = {
   parent: storageAccount
   name: 'default'
 }
 
+// Create file share
 resource fileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2021-04-01' = {
   parent: fileService
   name: fileShareName

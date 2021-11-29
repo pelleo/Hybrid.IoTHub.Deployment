@@ -76,6 +76,7 @@ param iotSkuUnits int = 1
 // Default parameter values for VM infrastructure
 param vmName string = 'demo-vm'
 param vmSize string = 'standard_d4s_v3'
+param vmStorageAccountNamePrefix string = 'onpremstore'
 
 // Fix version and correct time format later
 param tags object = {
@@ -148,13 +149,16 @@ module  vminfra './modules/vm-infra.bicep' = if (deployVm) {
   scope: onpremResourceGroup
   name: 'vm-infra-${location}'
   params: {
+    location: location
     vmName: vmName
     vmSize: vmSize
+    storageAccountNamePrefix: vmStorageAccountNamePrefix
+    fileShareName: fileShareName
+    fileShareType: fileShareType
     environmentType: environmentType
     linuxAdminUsername: linuxAdminUsername
     sshRSAPublicKey: sshRSAPublicKey
     dnsLabelPrefix: dnsLabelPrefix
-    location: location
     tags: tags
   }
 }

@@ -11,6 +11,18 @@ param vmName string
 @description('Size of virtual machine.')
 param vmSize string
 
+@minLength(3)
+@maxLength(63)
+@description('Name of file share.  Must be between 3 and 63 characters long.')
+param fileShareName string
+
+@allowed([
+  'SMB'
+  'NFS'
+])
+@description('Fileshare type.  Must be SMB or NFS.')
+param fileShareType string
+
 @description('Name of network security group')
 var nsgName = 'onprem-nsg'
 
@@ -28,6 +40,9 @@ param serviceEndpoints array = [
 ]
 
 param tags object
+
+@description('Storage account prefix')
+param storageAccountNamePrefix string
 
 @description('Address space of virtual network')
 param vnetAddressPrefix string = '10.1.0.0/16'
@@ -58,6 +73,8 @@ var linuxConfiguration = {
 
 var storageAccountSkuName = (environmentType == 'prod') ? 'Premium_ZRS' : 'Premium_LRS'
 var resourceNameSuffix  = uniqueString(resourceGroup().id)
+var storageAccountName = '${storageAccountNamePrefix}${resourceNameSuffix}'
+var nfs =  (fileShareType == 'NFS') ? true : false
 var domainNameLabel = '${dnsLabelPrefix}-${resourceNameSuffix}'
 
 // Create virtual network
@@ -238,5 +255,47 @@ resource vm 'Microsoft.Compute/virtualMachines@2021-03-01' = {
         enabled: false
       }
     }
+  }
+}
+
+// Create storage account
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: storageAccountName
+  location: location
+  tags: tags
+  sku: {
+    name: storageAccountSkuName
+  }
+  kind: 'FileStorage'
+  properties: {
+    accessTier: 'Hot'
+    networkAcls: nfs ? {
+      defaultAction: 'Deny'
+      virtualNetworkRules: [
+        {
+          action: 'Allow'
+          id: subnet.id
+        }
+      ]
+    } : null
+    supportsHttpsTrafficOnly: nfs ? false : true
+  }
+}
+
+// Create file service
+resource fileService 'Microsoft.Storage/storageAccounts/fileServices@2021-04-01' = {
+  parent: storageAccount
+  name: 'default'
+}
+
+// Create file share
+resource fileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2021-04-01' = {
+  parent: fileService
+  name: fileShareName
+  properties: {
+    accessTier: 'Premium'
+    shareQuota: 128
+    enabledProtocols: nfs ? 'NFS' : 'SMB'
+    rootSquash: nfs ? 'NoRootSquash' : null
   }
 }
