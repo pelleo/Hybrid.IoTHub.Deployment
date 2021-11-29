@@ -13,7 +13,7 @@ param aksClientId string
 param aksClientSecret string
 
 @description('Optional DNS prefix to use with hosted Kubernetes API server FQDN.')
-param dnsPrefix string
+param dnsLabelPrefix string
 
 @description('Disk size (in GB) to provision for each of the agent pool nodes. This value ranges from 0 to 1023. Specifying 0 will apply the default disk size for that agentVMSize.')
 @minValue(0)
@@ -56,7 +56,7 @@ param vnetName string = 'demo-vnet'
 param vnetAddressPrefix string = '10.0.0.0/16'
 
 @description('Subnet Prefix')
-param subnetPrefix string = '10.0.0.0/24'
+param subnetAddressPrefix string = '10.0.0.0/24'
 
 @description('Subnet Name')
 param subnetName string = 'demo-snet'
@@ -72,6 +72,7 @@ param tags object
 
 var resourceNameSuffix  = uniqueString(resourceGroup().id)
 var storageAccountName = '${storageAccountNamePrefix}${resourceNameSuffix}'
+var dnsPrefix = '${dnsLabelPrefix}-${resourceNameSuffix}'
 var nfs =  (fileShareType == 'NFS') ? true : false
 
 // Resources
@@ -119,7 +120,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2021-05-01' = {
   }
 }
 
-resource vnet 'Microsoft.Network/virtualNetworks@2021-02-01' = if (nfs) {
+resource vnet 'Microsoft.Network/virtualNetworks@2021-03-01' = if (nfs) {
   name: vnetName
   location: location
   tags: tags
@@ -132,11 +133,11 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-02-01' = if (nfs) {
   }
 }
 
-resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' = if (nfs) {
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-03-01' = if (nfs) {
   parent: vnet
   name: subnetName
   properties: {
-    addressPrefix: subnetPrefix
+    addressPrefix: subnetAddressPrefix
     serviceEndpoints: serviceEndpoints
   }
 }

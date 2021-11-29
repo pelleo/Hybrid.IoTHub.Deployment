@@ -10,7 +10,11 @@ parameters:
   - name: ResourceGroupName
     displayName: Resource Group
     type: string
-    default: <enter name>
+    default: rg-cloud-demo
+  - name: OnpremResourceGroupName
+    displayName: Onpremises Resource Group
+    type: string
+    default: rg-omprem-demo
   - name: DeleteResourceGroup
     displayName: Delete Resource Group
     type: boolean 
@@ -36,6 +40,7 @@ variables:
     DeleteResourceGroup: true
   ${{ if ne( variables['Build.Reason'], 'Schedule' ) }}: 
     DeleteResourceGroup: ${{ parameters.DeleteResourceGroup }}
+  OnpremResourceGroupName: ${{ parameters.OnpremResourceGroupName }}
   
 stages:
 - stage: 'Infra'
@@ -67,6 +72,7 @@ stages:
             --location $(Location) \
             --template-file Prod/pipeline/main.bicep \
             --parameters resourceGroupName=$(ResourceGroupName) \
+                         onpremResourceGroupName=$(OnpremResourceGroupName)
                          environmentType=$(EnvironmentType) \
                          aksDeployment=$(AksDeployment) \
                          iotDeployment=$(IotDeployment) \
