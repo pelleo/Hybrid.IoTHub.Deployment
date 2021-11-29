@@ -58,11 +58,11 @@ jobs:
               --location $LOCATION \
               --template-file $GITHUB_WORKSPACE/Prod/pipeline/main.bicep \
               --parameters resourceGroupName=$RESOURCE_GROUP_NAME \
-                           onpremResourceGroupName=$ONPREM_RESOURCE_GROUP_NAME
+                           onpremResourceGroupName=$ONPREM_RESOURCE_GROUP_NAME \
                            environmentType=$ENVIRONMENT_TYPE \
                            aksDeployment=$AKS_DEPLOYMENT \
                            iotDeployment=$IOT_DEPLOYMENT \
-                           vmDeployment=$VM_DEPLOYMENT
+                           vmDeployment=$VM_DEPLOYMENT \
                            aksClientId=${{ secrets.AKS_CLIENT_ID }} \
                            aksClientSecret=${{ secrets.AKS_CLIENT_SECRET }} \
                            fileShareType=$FILE_SHARE_TYPE \
