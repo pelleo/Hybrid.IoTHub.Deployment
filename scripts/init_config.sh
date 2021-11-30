@@ -2,109 +2,6 @@
 
 set -euo pipefail
 
-# Check if cloud-init is installed.
-dpkg --get-selections | grep cloud-init
-
-
-# Update repository index.
-apt update
-apt remove --purge cloud-init -y # wipe completely
-apt install cloud-init
-
-# Verify installation.
-cd /etc/cloud
-
-# Back up original config file.
-cp cloud.cfg cloud.cfg.bak
-
-nano cloud.cfg
- # * Remove packages
- # * Disable user
- # * Exit nano
-
- which mkpasswd
-
- # If not available, install whois package.
- apt search whois
-
-# Create password hash for user to be created.
-mkpasswd -m sha-512
-
-# Capture password hash
-
-# Edit user section under cloud config
-
-- name:  pelle
-  lock_passwd: False
-  passwd: <hash goes here>
-  ssh_autorized_keys:
-    - <ssh public key goes here>
-  groups: [ <copy list from Azure> ]
-  sudo: ["ALL=(ALL) NOPASSWD:ALL"]
-  shell: /bin/bash
-
-
-# Edit time zone
-
-# Enter boot command section at the very end of file.
-bootcmd:
-  <enter K3s install command>
-
-# Install packages
-packages:
-#  - git
-#  - tmux
-  - nginx
-
-cd /etc/cloud/cloud.cfg.d
-
-# Create new file
-nano 99-fake_cloud.cfg
-
-datasource_list [ NoCloud, None ]  # Bypass certain cloud based config options (needed for a standalone installation)
-datasource:
-  NoCloud:
-    fs_label: system-boot
-
-# Save file.
-
-# Reset cloud-init to ensure no old installs are present.
-cloud-init clean
-
-# Optionally add the following lines to the cloud.cfg file:
-
-preserve_hostname: False
-hostname: <FQDN of VM>
-manage_etc_hosts: true
-
-
-# This is a network fix that *may* be required.
-ls -al /etc/systemd/network
-
-# Remove symlink if it exists.
-rm /etc/systemd/network/99-default.link
-
-cloud-init clean
-cloud-init init
-
-# Verify.
-cat /etc/hostname
-cat /etc/hostname
-
-# To run a command:
-writehomepage:              # custom block
-  - &write_homepage |
-    cat > /var/www/html/index.html << EOF
-    <html>
-      <header><title>Cloud Init</title></header>
-      <body>
-        <h1></h1>
-      </body>
-    </html>
-EOF
-
-runcmd:
-  - [ sh, -c, *write_home_homepage ]
 
 # Install Docker
 sudo apt update
@@ -120,7 +17,7 @@ systemctl status docker
 # Add current user to Docker group to avoid having to type sudo 
 # every time you are running Docker
 sudo usermod -aG docker ${USER}
-adminuser@demo-vm:~$ newgrp docker
+newgrp docker
 
 # Install K3s Master node
 curl -sfL https://get.k3s.io | sh -s - --docker --tls-san 20.123.157.145
@@ -191,6 +88,23 @@ packages:
 output: {all: '| tee -a /var/log/cloud-init-output.log'}
 runcmd:
   - curl https://releases.rancher.com/install-docker/18.09.sh | sh
-  - sudo usermod -aG docker ubuntu
-  - curl -sfL https://get.k3s.io | sh -s - server --datastore-endpoint="mysql://myadmin@$K3smysqlserver:Password1@tcp($K3smysqlserver.mysql.database.azure.com:3306)/kubernetes"
+  - sudo usermod -aG docker adminuser
+  - curl -sfL https://get.k3s.io | sh -s - server --tls-san demo-37yjin46oafey.westeurope.cloudapp.azure.com
+  - sudo ufw allow 6443/tcp
+  - sudo ufw allow 443/tcp
+  - sudo cp /var/lib/rancher/k3s/server/node-token .
+  - sudo chown adminuser:adminuser node-token
+  - sudo sed 's/127.0.0.1/demo-37yjin46oafey.westeurope.cloudapp.azure.com/g' /etc/rancher/k3s/k3s.yaml > k3s-config
+  - chmod 600 k3s-config
+  - wget https://get.helm.sh/helm-v3.7.1-linux-amd64.tar.gz  
+  - tar -xvf helm-v3.7.1-linux-amd64.tar.gz 
+  - sudo mv linux-amd64/helm /usr/local/bin/helm
+  - helm repo add stable https://charts.helm.sh/stable
+  - helm repo update
+  - helm repo add argo https://argoproj.github.io/argo-helm
+  - mkdir -p .kube
+  - sudo cp /etc/rancher/k3s/k3s.yaml ./.kube/config
+  - sudo chown -R adminuser:adminuser ./.kube
+  - sudo kubectl create ns argocd
+  - helm upgrade --install demo-argo-cd argo/argo-cd --version 3.26.12 -n argocd
 EOF
