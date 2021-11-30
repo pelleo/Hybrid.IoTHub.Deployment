@@ -170,6 +170,26 @@ resource httpsRule 'Microsoft.Network/networkSecurityGroups/securityRules@2021-0
   }
 }
 
+// Allow kube API connections from anywhere
+resource k8sRule 'Microsoft.Network/networkSecurityGroups/securityRules@2021-03-01' = {
+  name: 'K8S'
+  parent: nsg
+  properties: {
+    protocol:  'Tcp'
+    sourcePortRange:  '*'
+    destinationPortRange:  '6443'
+    sourceAddressPrefix:  '*'
+    destinationAddressPrefix:  '*'
+    access:  'Allow'
+    priority: 130
+    direction:  'Inbound'
+    sourcePortRanges: []
+    destinationPortRanges: []
+    sourceAddressPrefixes: []
+    destinationAddressPrefixes: []
+  }
+}
+
 // Create Public IP
 resource publicIP 'Microsoft.Network/publicIPAddresses@2021-03-01' = {
   name: publicIPAddressName
