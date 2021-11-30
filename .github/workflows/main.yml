@@ -56,7 +56,7 @@ jobs:
             az deployment sub create \
               --name AKS_IoT_deploy \
               --location $LOCATION \
-              --template-file $GITHUB_WORKSPACE/Prod/pipeline/main.bicep \
+              --template-file $GITHUB_WORKSPACE/deployment/bicep/main.bicep \
               --parameters resourceGroupName=$RESOURCE_GROUP_NAME \
                            onpremResourceGroupName=$ONPREM_RESOURCE_GROUP_NAME \
                            environmentType=$ENVIRONMENT_TYPE \

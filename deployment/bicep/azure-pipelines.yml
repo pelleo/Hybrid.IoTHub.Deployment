@@ -70,7 +70,7 @@ stages:
           az deployment sub create \
             --name $(Build.BuildNumber) \
             --location $(Location) \
-            --template-file Prod/pipeline/main.bicep \
+            --template-file deployment/bicep/main.bicep \
             --parameters resourceGroupName=$(ResourceGroupName) \
                          onpremResourceGroupName=$(OnpremResourceGroupName) \
                          environmentType=$(EnvironmentType) \
