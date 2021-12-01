@@ -1,7 +1,10 @@
 #/bin/bash
 set -euo pipefail
 
-az login
+# Path to public key must be specified for each user.
+sshKeyPath=/home/pelleo/.ssh/id_rsa.pub
+
+# Values must agree with those used by bicep.
 location=westeurope                  # pipeline parameter
 resourceGroupName=rg-onprem-demo     # pipeline parameter
 linuxAdminUsername=adminuser         # main.bicep
@@ -13,10 +16,7 @@ sku=18.04-LTS                        # vm-infra.bicep
 version=latest                       # vm-infra.bicep
 networkInterfaceName=${vmName}-nic   # vm-infra.bicep
 
-# main.bicep
-sshRSAPublicKey='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCsjYzxGD3DuHdin5WShA4/GMF53+0QVjCsV9dJgXrt2INF5T8LX+Gu7tFXHcKOhqkoRzqNC+jYGdEkUFqNmKtZZ0S/DflUVt+DvM7jukY/++f57UZdw1mWDtxxCK5CYg5tOzAJQC7h9YhUxaXUOTJ/uFQvm5628sIR3Id27qarV07oi56gJyD6/6AVBQWsthB8Qwif6KQdHHzH0ZW1AF5W1HVg0OGgFBsiFLQx6uQGCCQGSiyjPsM6s0UqlTvbiXbrZ0LHj+DGQp6leeZghblOw4O5jYWfIBgO1+ioVToc0U8TRuQCqerueLDH9NZxObRBpA53NTUfKf3auOgOob7l pelleo@PELLEOPC'
-
-
+# Existing resource group and NIC assumed.
 az vm create -l ${location} \
              -g ${resourceGroupName} \
              -n ${vmName} \
@@ -24,6 +24,6 @@ az vm create -l ${location} \
              --size ${vmSize} \
              --admin-username ${linuxAdminUsername} \
              --authentication-type ssh \
-             --ssh-key-values ${sshRSAPublicKey} \
+             --ssh-key-values ${sshKeyPath} \
              --nics ${networkInterfaceName} \
-             --custom-data cloud-init-test.txt
+             --custom-data cloud-init.txt

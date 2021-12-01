@@ -1,8 +1,0 @@
-#cloud-config
-package_upgrade: true
-packages:
-  - curl
-output: {all: '| tee -a /var/log/cloud-init-output.log'}
-runcmd:
-  - pwd
-  - echo world > hello
