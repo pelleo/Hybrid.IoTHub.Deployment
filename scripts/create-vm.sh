@@ -19,7 +19,7 @@ sshRSAPublicKey='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCsjYzxGD3DuHdin5WShA4/GMF
 
 az vm create -l ${location} \
              -g ${resourceGroupName} \
-             -name ${vmName} \
+             -n ${vmName} \
              --image ${publisher}:${offer}:${sku}:${version} \
              --size ${vmSize} \
              --admin-username ${linuxAdminUsername} \
