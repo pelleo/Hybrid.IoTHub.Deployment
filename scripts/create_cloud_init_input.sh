@@ -10,7 +10,7 @@ set -euo pipefail
 #####################################################################
 
 # Location of cloud-init input file.
-CLOUD_INIT_PATH=../deployment/bicep/modules/cloud-init-k3s-argocd.txt
+CLOUD_INIT_PATH=../deployment/bicep/modules/cloud-init-k3s-argocd.yml
 
 # The following values must agree with bicep templates.
 DNS_LABEL_PREFIX=demo

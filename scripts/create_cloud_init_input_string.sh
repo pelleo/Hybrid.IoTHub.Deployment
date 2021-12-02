@@ -8,11 +8,10 @@ LOCATION=westeurope
 ADMIN_USERNAME=adminuser
 SERVER=${DNS_PREFIX}.${LOCATION}.cloudapp.azure.com
 
-# Use home directory for files to be downloaded from VM.
+# Use VM admin home directory as output dir for files to be downloaded from VM.
 OUTPUT_DIR=/home/${ADMIN_USERNAME} 
 
-# Generate input file for cloud-init.
-#read -r  CLOUD_INIT_STR << EOSTR 
+# Generate cloud-init input string.
 CLOUD_INIT_STR=$(cat << EOSTR 
 #cloud-config
 package_upgrade: true
@@ -46,12 +45,8 @@ runcmd:
 EOSTR
 )
 
-echo No quotes:
-CLOUD_INIT_STR_BASE64=$(echo ${CLOUD_INIT_STR} | base64 -w 0)
-echo ${CLOUD_INIT_STR_BASE64}
-
-# Double quotes preserves newlines in stdout.
+# Double quotes preserve newlines in stdout.  Required by cloud-init.
+CLOUD_INIT_STR_QUOTED_BASE64=$(echo "${CLOUD_INIT_STR}" | base64 -w 0)
+echo CLOUD_INIT_STR_QUOTED_BASE64:
 echo ""
-echo Quotes:
-CLOUD_INIT_STR_QUOTE_BASE64=$(echo "${CLOUD_INIT_STR}" | base64 -w 0)
-echo ${CLOUD_INIT_STR_QUOTE_BASE64}
+echo ${CLOUD_INIT_STR_QUOTED_BASE64}
