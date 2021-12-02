@@ -5,7 +5,7 @@ set -euo pipefail
 SSH_KEY_PATH=/home/pelleo/.ssh/id_rsa.pub
 
 # File that holds config commands to be executed by cloud-init.
-CLOUD_INIT_PATH=./cloud-init.txt
+CLOUD_INIT_PATH=../deployment/bicep/modules/cloud-init-k3s-argocd.yml
 
 # Values must agree with those used by bicep.
 LOCATION=westeurope                     # pipeline parameter
