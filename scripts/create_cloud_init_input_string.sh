@@ -1,17 +1,6 @@
 #/bin/bash
 set -euo pipefail
 
-#####################################################################
-# 1.  Execute this script manually on the local workstation.  This
-#     will generate the cloud-init input file to be used by cloud-init
-#     when executing the bicep template via Git Actions
-# 2.  Commit and push the local git repo to GitHub
-# 3.  Execute the git workflow 'IotHub Infrastructure Deployment'
-#####################################################################
-
-# Location of cloud-init input file.
-CLOUD_INIT_PATH=../deployment/bicep/modules/cloud-init-k3s-argocd.txt
-
 # The following values must agree with bicep templates.
 DNS_LABEL_PREFIX=demo
 DNS_PREFIX=${DNS_LABEL_PREFIX}-37yjin46oafey  
@@ -23,7 +12,8 @@ SERVER=${DNS_PREFIX}.${LOCATION}.cloudapp.azure.com
 OUTPUT_DIR=/home/${ADMIN_USERNAME} 
 
 # Generate input file for cloud-init.
-cat << EOF > ${CLOUD_INIT_PATH}
+#read -r  CLOUD_INIT_STR << EOSTR 
+CLOUD_INIT_STR=$(cat << EOSTR 
 #cloud-config
 package_upgrade: true
 packages:
@@ -53,4 +43,15 @@ runcmd:
   - rm -rf ${OUTPUT_DIR}/linux-amd64
   - chown -R ${ADMIN_USERNAME}:${ADMIN_USERNAME} ${OUTPUT_DIR}/.kube
   - chown ${ADMIN_USERNAME}:${ADMIN_USERNAME} ${OUTPUT_DIR}/helm-v3.7.1-linux-amd64.tar.gz
-EOF
+EOSTR
+)
+
+echo No quotes:
+CLOUD_INIT_STR_BASE64=$(echo ${CLOUD_INIT_STR} | base64 -w 0)
+echo ${CLOUD_INIT_STR_BASE64}
+
+# Double quotes preserves newlines in stdout.
+echo ""
+echo Quotes:
+CLOUD_INIT_STR_QUOTE_BASE64=$(echo "${CLOUD_INIT_STR}" | base64 -w 0)
+echo ${CLOUD_INIT_STR_QUOTE_BASE64}
