@@ -269,6 +269,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2021-03-01' = {
       adminUsername: linuxAdminUsername
       //adminPassword: adminPasswordOrKey
       linuxConfiguration: linuxConfiguration
+      customData: loadFileAsBase64('cloud-init-k3s-argocd.txt')
     }
     diagnosticsProfile: {
       bootDiagnostics: {
