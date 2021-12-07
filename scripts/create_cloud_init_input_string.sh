@@ -42,6 +42,8 @@ runcmd:
   - rm -rf ${OUTPUT_DIR}/linux-amd64
   - chown -R ${ADMIN_USERNAME}:${ADMIN_USERNAME} ${OUTPUT_DIR}/.kube
   - chown ${ADMIN_USERNAME}:${ADMIN_USERNAME} ${OUTPUT_DIR}/helm-v3.7.1-linux-amd64.tar.gz
+  - curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+  - chmod 755 /usr/local/bin/argocd
 EOSTR
 )
 

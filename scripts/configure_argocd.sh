@@ -14,6 +14,10 @@ KUBECONFIG_DIR=/c/Users/pelleo/.kube
 # K3s local config directory.
 K3S_CONFIG_DIR=../config
 
+# New ArgoCD password.
+ARGOCD_ADMIN=admin
+NEW_ARGOCD_PWD=P@szw0rd
+
 # Download kubeconfig and node token from VM.
 ssh-keygen -f ${HOME_DIR}/.ssh/known_hosts -R ${SERVER}
 scp -o "StrictHostKeyChecking no" ${ADMIN_USERNAME}@${SERVER}:k3s-config ${K3S_CONFIG_DIR}
@@ -32,8 +36,13 @@ cp ${K3S_CONFIG_DIR}/k3s-config ${KUBECONFIG_DIR}/config
 
 # Reset password.  Ignore error msg "FATA[0030] rpc error: code = Unauthenticated desc = Invalid username or password".
 export ARGOCD_OPTS='--port-forward-namespace argocd'
-argocd login ${SERVER} --password ${ARGOCD_PWD} --username admin
-argocd account update-password  --current-password ${ARGOCD_PWD}
+argocd login ${SERVER} --password ${ARGOCD_PWD} --username ${ARGOCD_ADMIN} --insecure
+argocd account update-password --current-password ${ARGOCD_PWD} --new-password ${NEW_ARGOCD_PWD} --insecure
+
+# Allow direct external access (no port-forwarding required).  MUST INSTALL LOADBALANCER RESOURCE!!!  NodePort will not work in Azure!!!
+#kubectl --kubeconfig ${K3S_CONFIG_DIR}/k3s-config expose deployment.apps/demo-argo-cd-argocd-server --type="NodePort" --port 8080 --name=argo-nodeport -n argocd  
+#kubectl --kubeconfig ${K3S_CONFIG_DIR}/k3s-config patch service/demo-argo-cd-argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
+kubectl --kubeconfig ${K3S_CONFIG_DIR}/k3s-config patch service/demo-argo-cd-argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
 
 # Restore config file.
 mv ${KUBECONFIG_DIR}/config.bak ${KUBECONFIG_DIR}/config
