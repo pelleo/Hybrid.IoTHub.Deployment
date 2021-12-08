@@ -11,58 +11,76 @@ HOME_DIR=/home/pelleo
 # Default local kubeconfig directory.
 KUBECONFIG_DIR=/c/Users/pelleo/.kube
 
-# K3s local config directory.
-K3S_CONFIG_DIR=../config
-
-# ArgoCD credentials.
+# ArgoCD config.
+ARGOCD_NAMESPACE=argocd
 ARGOCD_ADMIN=admin
-NEW_ARGOCD_PWD=P@szw0rd
+ARGOCD_PWD=P@szw0rd
 
-# Download kubeconfig and node token from VM.
+# Repository information.
+REPO_ROOT=~/trumpf/share/Hybrid.IoTHub.Deployment
+REPO=https://github.com/pelleo/Hybrid.IoTHub.Deployment.git
+APP_PATH=clusters/k3s/guestbook
+
+# AKS cluster info.
+AKS_RG_NAME=rg-aks-demo
+AKS_CLUSTER_NAME=demo-aks
+
+# Navigate to script dir.  Download kubeconfig and node token from VM.
 ssh-keygen -f ${HOME_DIR}/.ssh/known_hosts -R ${SERVER}
-scp -o "StrictHostKeyChecking no" ${ADMIN_USERNAME}@${SERVER}:k3s-config ${K3S_CONFIG_DIR}
-scp -o "StrictHostKeyChecking no" ${ADMIN_USERNAME}@${SERVER}:node-token ${K3S_CONFIG_DIR}
+scp -o "StrictHostKeyChecking no" ${ADMIN_USERNAME}@${SERVER}:k3s-config ${REPO_ROOT}/config
+scp -o "StrictHostKeyChecking no" ${ADMIN_USERNAME}@${SERVER}:node-token ${REPO_ROOT}/config
 
 # WSL fix. Must copy the new kubeconfig to default WSL location.
 mv ${KUBECONFIG_DIR}/config ${KUBECONFIG_DIR}/config.bak           # Backup existing kubeconfig
-cp ${K3S_CONFIG_DIR}/k3s-config ${KUBECONFIG_DIR}/config
+cp ${REPO_ROOT}/config/k3s-config ${KUBECONFIG_DIR}/config
 
-# Verify deploymemnt of ArgoCD.
-kubectl --kubeconfig ${K3S_CONFIG_DIR}/k3s-config -n argocd get all
+# Merge AKS cluster kubeconfig into default config store.
+az aks get-credentials -g ${AKS_RG_NAME} -n ${AKS_CLUSTER_NAME}
+
+# K3s kubeconfig context required when configuring ArgoCD.
+kubectl config get-contexts -o name
+kubectl config use-context default
+
+# Verify ArgoCD deploymemnt.
+kubectl -n ${ARGOCD_NAMESPACE} get all
+ARGOCD_SERVER_POD_NAME=$(kubectl get pod -n ${ARGOCD_NAMESPACE} -l app.kubernetes.io/name=argocd-server --output=jsonpath="{.items[*].metadata.name}")
+ARGOCD_SERVER_SVC_NAME=$(kubectl get svc -n ${ARGOCD_NAMESPACE} -l app.kubernetes.io/name=argocd-server --output=jsonpath="{.items[*].metadata.name}")
+kubectl wait --for=condition=Ready -n ${ARGOCD_NAMESPACE} pod/${ARGOCD_SERVER_POD_NAME}
 
 # Retrieve random password generated during ArgoCD installation.
-ARGOCD_PWD=$(kubectl --kubeconfig ${K3S_CONFIG_DIR}//k3s-config -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
-echo ${ARGOCD_PWD}
+ARGOCD_AUTO_PWD=$(kubectl -n ${ARGOCD_NAMESPACE} get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+echo ${ARGOCD_AUTO_PWD}
 
 # Reset password.  Ignore error msg "FATA[0030] rpc error: code = Unauthenticated desc = Invalid username or password".
 export ARGOCD_OPTS='--port-forward-namespace argocd'
-argocd login ${SERVER} --password ${ARGOCD_PWD} --username ${ARGOCD_ADMIN} --insecure
-argocd account update-password --current-password ${ARGOCD_PWD} --new-password ${NEW_ARGOCD_PWD} --insecure
+argocd login ${SERVER} --password ${ARGOCD_AUTO_PWD} --username ${ARGOCD_ADMIN} --insecure
+argocd account update-password --current-password ${ARGOCD_AUTO_PWD} --new-password ${ARGOCD_PWD} --insecure
 
 # Allow direct external access (no port-forwarding required).  MUST INSTALL LOADBALANCER RESOURCE!!!  NodePort will not work in Azure!!!
-#kubectl --kubeconfig ${K3S_CONFIG_DIR}/k3s-config expose deployment.apps/demo-argo-cd-argocd-server --type="NodePort" --port 8080 --name=argo-nodeport -n argocd  
-#kubectl --kubeconfig ${K3S_CONFIG_DIR}/k3s-config patch service/demo-argo-cd-argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
-kubectl --kubeconfig ${K3S_CONFIG_DIR}/k3s-config patch service/demo-argo-cd-argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+#kubectl expose deployment.apps/demo-argo-cd-argocd-server --type="NodePort" --port 8080 --name=argo-nodeport -n argocd  
+#kubectl patch service/demo-argo-cd-argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
+kubectl patch svc/${ARGOCD_SERVER_SVC_NAME} -n ${ARGOCD_NAMESPACE} -p '{"spec": {"type": "LoadBalancer"}}'
 
-# Install sample application.
-#argocd app create guestbook --repo https://github.com/argoproj/argocd-example-apps.git --path guestbook --dest-server https://kubernetes.default.svc --dest-namespace default
-argocd app create guestbook --repo https://github.com/pelleo/Hybrid.IoTHub.Deployment.git --path clusters/k3s/guestbook --dest-server https://kubernetes.default.svc --dest-namespace default
+# Install sample application.  New login required since credentials changed.
+argocd login ${SERVER} --password ${ARGOCD_PWD}  --username ${ARGOCD_ADMIN} --insecure
+argocd app create guestbook --repo ${REPO} --path ${APP_PATH} --dest-server https://kubernetes.default.svc --dest-namespace default
 
-# Optional:  Connect to github repo.
-argocd repo add https://github.com/pelleo/Hybrid.IoTHub.Deployment.git
-
-# Add AKS cluster kubeconfig to default config store.
-az aks get-credentials -g rg-cloud-demo -n demo-aks
+# Connect GitHub repo.
+argocd repo add ${REPO}
 
 # Add AKS cluster to ArgoCD
+kubectl config get-contexts -o name
 argocd cluster add demo-aks
+
+# Configure port forwarding.
+kubectl port-forward svc/${ARGOCD_SERVER_SVC_NAME} -n ${ARGOCD_NAMESPACE} 8080:443 
+
+# Open a browser and navigate to http://localhost:8080 and logon on using the new password:
+#
+# Username: admin
+# Password: <new password>
+#
+# When done, type ctrl-C to terminate port-forwarding.
 
 # Restore config file.
 mv ${KUBECONFIG_DIR}/config.bak ${KUBECONFIG_DIR}/config
-
-# Configure port forwarding.
-kubectl --kubeconfig ${K3S_CONFIG_DIR}/k3s-config port-forward service/demo-argo-cd-argocd-server -n argocd 8080:443 
-
-# Open a browser and navigate to http://localhost:8080 and logon on using the new password:
-# Username: admin
-# Password: <new password>
