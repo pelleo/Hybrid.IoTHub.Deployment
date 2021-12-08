@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Login information for Azure VM hosting ArgoCD service.
-SERVER=demo-37yjin46oafey.westeurope.cloudapp.azure.com
+SERVER=demo-y4sz7dkvnweq4.westeurope.cloudapp.azure.com
 ADMIN_USERNAME=adminuser
 
 # Bash local home directory.
@@ -27,9 +27,6 @@ scp -o "StrictHostKeyChecking no" ${ADMIN_USERNAME}@${SERVER}:node-token ${K3S_C
 mv ${KUBECONFIG_DIR}/config ${KUBECONFIG_DIR}/config.bak           # Backup existing kubeconfig
 cp ${K3S_CONFIG_DIR}/k3s-config ${KUBECONFIG_DIR}/config
 
-# Add AKS cluster kubeconfig to default config store.
-az aks get-credentials -g rg-cloud-demo -n demo-aks
-
 # Verify deploymemnt of ArgoCD.
 kubectl --kubeconfig ${K3S_CONFIG_DIR}/k3s-config -n argocd get all
 
@@ -53,6 +50,9 @@ argocd app create guestbook --repo https://github.com/pelleo/Hybrid.IoTHub.Deplo
 
 # Optional:  Connect to github repo.
 argocd repo add https://github.com/pelleo/Hybrid.IoTHub.Deployment.git
+
+# Add AKS cluster kubeconfig to default config store.
+az aks get-credentials -g rg-cloud-demo -n demo-aks
 
 # Add AKS cluster to ArgoCD
 argocd cluster add demo-aks

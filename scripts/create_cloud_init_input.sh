@@ -14,7 +14,7 @@ CLOUD_INIT_PATH=../deployment/bicep/modules/cloud-init-k3s-argocd.yml
 
 # The following values must agree with bicep templates.
 DNS_LABEL_PREFIX=demo
-DNS_PREFIX=${DNS_LABEL_PREFIX}-37yjin46oafey  
+DNS_PREFIX=${DNS_LABEL_PREFIX}-y4sz7dkvnweq4  
 LOCATION=westeurope
 ADMIN_USERNAME=adminuser
 SERVER=${DNS_PREFIX}.${LOCATION}.cloudapp.azure.com

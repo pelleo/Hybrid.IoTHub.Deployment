@@ -6,12 +6,12 @@ output: {all: '| tee -a /var/log/cloud-init-output.log'}
 runcmd:
   - curl https://releases.rancher.com/install-docker/18.09.sh | sh
   - usermod -aG docker adminuser
-  - curl -sfL https://get.k3s.io | sh -s - server --tls-san demo-37yjin46oafey.westeurope.cloudapp.azure.com
+  - curl -sfL https://get.k3s.io | sh -s - server --tls-san demo-y4sz7dkvnweq4.westeurope.cloudapp.azure.com
   - ufw allow 6443/tcp
   - ufw allow 443/tcp
   - cp /var/lib/rancher/k3s/server/node-token /home/adminuser/node-token
   - chown adminuser:adminuser /home/adminuser/node-token
-  - sed 's/127.0.0.1/demo-37yjin46oafey.westeurope.cloudapp.azure.com/g' /etc/rancher/k3s/k3s.yaml > /home/adminuser/k3s-config
+  - sed 's/127.0.0.1/demo-y4sz7dkvnweq4.westeurope.cloudapp.azure.com/g' /etc/rancher/k3s/k3s.yaml > /home/adminuser/k3s-config
   - chmod 600 /home/adminuser/k3s-config
   - chown adminuser:adminuser /home/adminuser/k3s-config
   - wget -c https://get.helm.sh/helm-v3.7.1-linux-amd64.tar.gz -P /home/adminuser
