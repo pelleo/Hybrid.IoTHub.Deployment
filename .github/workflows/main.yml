@@ -69,8 +69,8 @@ jobs:
                            dpsDeployment=$DPS_DEPLOYMENT
         env:
           LOCATION: westeurope
-          RESOURCE_GROUP_NAME: rg-cloud-demo
-          ONPREM_RESOURCE_GROUP_NAME: rg-onprem-demo
+          RESOURCE_GROUP_NAME: rg-aks-demo
+          ONPREM_RESOURCE_GROUP_NAME: rg-k3s-demo
           ENVIRONMENT_TYPE: dev
           AKS_DEPLOYMENT: yes
           IOT_DEPLOYMENT: yes
