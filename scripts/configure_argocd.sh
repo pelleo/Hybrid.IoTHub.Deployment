@@ -28,6 +28,7 @@ kubectl --kubeconfig ${K3S_CONFIG_DIR}/k3s-config -n argocd get all
 
 # Retrieve random password generated during ArgoCD installation.
 ARGOCD_PWD=$(kubectl --kubeconfig ${K3S_CONFIG_DIR}//k3s-config -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+ARGOCD_PWD=$(sudo kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 echo ${ARGOCD_PWD}
 
 # WSL fix. Must move the new kubeconfig to default WSL location.
@@ -43,6 +44,9 @@ argocd account update-password --current-password ${ARGOCD_PWD} --new-password $
 #kubectl --kubeconfig ${K3S_CONFIG_DIR}/k3s-config expose deployment.apps/demo-argo-cd-argocd-server --type="NodePort" --port 8080 --name=argo-nodeport -n argocd  
 #kubectl --kubeconfig ${K3S_CONFIG_DIR}/k3s-config patch service/demo-argo-cd-argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
 kubectl --kubeconfig ${K3S_CONFIG_DIR}/k3s-config patch service/demo-argo-cd-argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+
+# Install sample application.
+argocd app create guestbook --repo https://github.com/argoproj/argocd-example-apps.git --path guestbook --dest-server https://kubernetes.default.svc --dest-namespace default
 
 # Restore config file.
 mv ${KUBECONFIG_DIR}/config.bak ${KUBECONFIG_DIR}/config
