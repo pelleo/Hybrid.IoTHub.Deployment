@@ -419,6 +419,7 @@ resource generateCloudInitDeploymentScript 'Microsoft.Resources/deploymentScript
   }
 }
 
+
 output cloudInitFileAsBase64 string = generateCloudInitDeploymentScript.properties.outputs.cloudInitFileAsBase64
 output publicIpAddress string = publicIP.properties.ipAddress
 output fqdn string = publicIP.properties.dnsSettings.fqdn

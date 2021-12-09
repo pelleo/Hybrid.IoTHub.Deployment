@@ -31,4 +31,4 @@ runcmd:
   - curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
   - chmod 755 /usr/local/bin/argocd
 final_message: >
-    Access ArgoCD from a web browser at http://%%HOST_IP_ADDRESS%%
+    Open a web browser to access ArgoCD at http://%%HOST_IP_ADDRESS%%
