@@ -429,10 +429,10 @@ resource generateCloudInitDeploymentScript 'Microsoft.Resources/deploymentScript
       storageAccountName: storageAccountName
       storageAccountKey: listKeys(resourceId('Microsoft.Storage/storageAccounts', storageAccountName), '2021-04-01').keys[0].value
     }
-    primaryScriptUri: 'https://raw.githubusercontent.com/pelleo/Hybrid.IoTHub.Deployment/main/deployment/bicep/modules/create_cloud_init_input_bicep.sh'
-    supportingScriptUris: [
-      'https://raw.githubusercontent.com/pelleo/Hybrid.IoTHub.Deployment/main/deployment/bicep/modules/cloud-init-template.yml'
-    ]
+    primaryScriptUri: 'https://raw.githubusercontent.com/pelleo/Hybrid.IoTHub.Deployment/main/deployment/bicep/modules/create_cloud_init_input_string_bicep.sh'
+    //supportingScriptUris: [
+    //  'https://raw.githubusercontent.com/pelleo/Hybrid.IoTHub.Deployment/main/deployment/bicep/modules/cloud-init-template.yml'
+    //]
     timeout: 'PT30M'
     cleanupPreference: 'OnSuccess'
     retentionInterval: 'P1D'
