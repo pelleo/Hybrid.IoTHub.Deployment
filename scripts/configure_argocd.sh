@@ -27,12 +27,12 @@ AKS_CLUSTER_NAME=demo-aks
 
 # Navigate to script dir.  Download kubeconfig and node token from VM.
 ssh-keygen -f ${HOME_DIR}/.ssh/known_hosts -R ${SERVER}
-scp -o "StrictHostKeyChecking no" ${ADMIN_USERNAME}@${SERVER}:k3s-config ${REPO_ROOT}/config
-scp -o "StrictHostKeyChecking no" ${ADMIN_USERNAME}@${SERVER}:node-token ${REPO_ROOT}/config
+scp -o "StrictHostKeyChecking no" ${ADMIN_USERNAME}@${SERVER}:k3s-config ${REPO_ROOT}/local
+scp -o "StrictHostKeyChecking no" ${ADMIN_USERNAME}@${SERVER}:node-token ${REPO_ROOT}/local
 
 # WSL fix. Must copy the new kubeconfig to default WSL location.
 mv ${KUBECONFIG_DIR}/config ${KUBECONFIG_DIR}/config.bak           # Backup existing kubeconfig
-cp ${REPO_ROOT}/config/k3s-config ${KUBECONFIG_DIR}/config
+cp ${REPO_ROOT}/local/k3s-config ${KUBECONFIG_DIR}/config
 
 # Merge AKS cluster kubeconfig into default config store.
 az aks get-credentials -g ${AKS_RG_NAME} -n ${AKS_CLUSTER_NAME}
@@ -45,7 +45,7 @@ kubectl config use-context default
 kubectl -n ${ARGOCD_NAMESPACE} get all
 ARGOCD_SERVER_POD_NAME=$(kubectl get pod -n ${ARGOCD_NAMESPACE} -l app.kubernetes.io/name=argocd-server --output=jsonpath="{.items[*].metadata.name}")
 ARGOCD_SERVER_SVC_NAME=$(kubectl get svc -n ${ARGOCD_NAMESPACE} -l app.kubernetes.io/name=argocd-server --output=jsonpath="{.items[*].metadata.name}")
-kubectl wait --for=condition=Ready -n ${ARGOCD_NAMESPACE} pod/${ARGOCD_SERVER_POD_NAME}
+kubectl wait --for=condition=Ready --timeout=600s -n ${ARGOCD_NAMESPACE} pod/${ARGOCD_SERVER_POD_NAME}
 
 # Retrieve random password generated during ArgoCD installation.
 ARGOCD_AUTO_PWD=$(kubectl -n ${ARGOCD_NAMESPACE} get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
