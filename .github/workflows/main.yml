@@ -31,30 +31,12 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       # Runs a set of commands using the runners shell
-#      - name: Azure CLI script
-#        uses: azure/CLI@v1
-#        with:
-#          inlineScript: |
-#            az account show
-#            az storage -h
-
-      # Create resource group
-#      - name: Create resource group
-#        uses: azure/CLI@v1
-#        with:
-#          inlineScript: |
-#            az version
-#            az group create -n $RESOURCE_GROUP_NAME -l $LOCATION
-#        env:
-#          LOCATION: westeurope
-#          RESOURCE_GROUP_NAME: rg-infra-demo
-
       - name: Create Iot Hub Infrastructure
         uses: azure/CLI@v1
         with:
           inlineScript: |
             az deployment sub create \
-              --name AKS_IoT_deploy \
+              --name AKS_IoT_K3S_deploy \
               --location $LOCATION \
               --template-file $GITHUB_WORKSPACE/deployment/bicep/main.bicep \
               --parameters resourceGroupName=$RESOURCE_GROUP_NAME \
@@ -67,6 +49,10 @@ jobs:
                            aksClientSecret=${{ secrets.AKS_CLIENT_SECRET }} \
                            fileShareType=$FILE_SHARE_TYPE \
                            dpsDeployment=$DPS_DEPLOYMENT
+
+            az deployment sub show \
+              --name AKS_IoT_K3S_deploy \
+              --query properties.outputs
         env:
           LOCATION: westeurope
           RESOURCE_GROUP_NAME: rg-aks-demo
