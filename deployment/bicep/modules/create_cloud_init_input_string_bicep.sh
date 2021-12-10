@@ -41,4 +41,4 @@ EOSTR
 )
 
 # Double quotes around CLOUD_INIT_STR preserve newlines in stdout.  Required by cloud-init.
-echo "${CLOUD_INIT_STR}" | base64 -w 0 | awk '{printf "{\"cloudInitFileAsBase64\": \"%s\"}", $1}' > ${AZ_SCRIPTS_OUTPUT_PATH}
+echo "${CLOUD_INIT_STR}" | base64 | tr -d '\n\r' | awk '{printf "{\"cloudInitFileAsBase64\": \"%s\"}", $1}' > ${AZ_SCRIPTS_OUTPUT_PATH}
