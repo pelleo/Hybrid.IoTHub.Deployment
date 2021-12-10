@@ -1,1 +1,1 @@
-Use this directory store local helper and temporary files that should not be part of the repository, e.g., test scripts, debugging data, kubeconfig files, etc.
+Use this directory store local helper and temporary files that should not be part of the repository, e.g., test scripts, debugging data, kubeconfig files, backups, etc.
