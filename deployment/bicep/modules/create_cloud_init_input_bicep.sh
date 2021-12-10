@@ -7,7 +7,7 @@ set -euo pipefail
 # Output must always be stored in the AZ_SCRIPTS_OUTPUT_PATH (built-in) location 
 # and it must be a valid JSON string object.
 
-sed "s/%%RANCHER_DOCKER_INSTALL_URL%%/${RANCHER_DOCKER_INSTALL_URL}/g; \
+sed "s|%%RANCHER_DOCKER_INSTALL_URL%%|${RANCHER_DOCKER_INSTALL_URL}|g; \
      s/%%LINUX_ADMIN_USERNAME%%/${LINUX_ADMIN_USERNAME}/g; \
      s/%%HELM_TAR_BALL%%/${HELM_TAR_BALL}/g; \
      s/%%ARGOCD_VERSION%%/${ARGOCD_VERSION}/g; \
