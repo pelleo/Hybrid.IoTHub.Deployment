@@ -367,6 +367,8 @@ resource miCustomRoleAssign 'Microsoft.Authorization/roleAssignments@2020-04-01-
   }
 }
 
+var miId = resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', identityName)
+
 resource generateCloudInitDeploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: 'createCloudInit'
   location: resourceGroup().location
@@ -374,7 +376,7 @@ resource generateCloudInitDeploymentScript 'Microsoft.Resources/deploymentScript
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      'mi.id': {}
+      '${miId}': {}
     }
   }
   properties: {
@@ -422,3 +424,4 @@ resource generateCloudInitDeploymentScript 'Microsoft.Resources/deploymentScript
 output cloudInitFileAsBase64 string = generateCloudInitDeploymentScript.properties.outputs.cloudInitFileAsBase64
 //output publicIpAddress string = publicIP.properties.ipAddress
 output fqdn string = publicIP.properties.dnsSettings.fqdn
+output miId string = miId
