@@ -7,12 +7,12 @@ output: {all: '| tee -a /var/log/cloud-init-output.log'}
 runcmd:
   - curl %%RANCHER_DOCKER_INSTALL_URL%% | sh
   - usermod -aG docker %%LINUX_ADMIN_USERNAME%%
-  - curl -sfL https://get.k3s.io | sh -s - server --tls-san %%HOST_IP_ADDRESS%%
+  - curl -sfL https://get.k3s.io | sh -s - server --tls-san %%HOST_IP_ADDRESS_OR_FQDN%%
   - ufw allow 6443/tcp
   - ufw allow 443/tcp
   - cp /var/lib/rancher/k3s/server/node-token /home/%%LINUX_ADMIN_USERNAME%%/node-token
   - chown %%LINUX_ADMIN_USERNAME%%:%%LINUX_ADMIN_USERNAME%% /home/%%LINUX_ADMIN_USERNAME%%/node-token
-  - sed 's/127.0.0.1/%%HOST_IP_ADDRESS%%/g' /etc/rancher/k3s/k3s.yaml > /home/%%LINUX_ADMIN_USERNAME%%/k3s-config
+  - sed 's/127.0.0.1/%%HOST_IP_ADDRESS_OR_FQDN%%/g' /etc/rancher/k3s/k3s.yaml > /home/%%LINUX_ADMIN_USERNAME%%/k3s-config
   - chmod 600 /home/%%LINUX_ADMIN_USERNAME%%/k3s-config
   - chown %%LINUX_ADMIN_USERNAME%%:%%LINUX_ADMIN_USERNAME%% /home/%%LINUX_ADMIN_USERNAME%%/k3s-config
   - wget -c https://get.helm.sh/%%HELM_TAR_BALL%% -P /home/%%LINUX_ADMIN_USERNAME%%
@@ -31,4 +31,4 @@ runcmd:
   - curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
   - chmod 755 /usr/local/bin/argocd
 final_message: >
-    Open a web browser to access ArgoCD at http://%%HOST_IP_ADDRESS%%
+    Open a web browser to access ArgoCD at http://%%HOST_IP_ADDRESS_OR_FQDN%%

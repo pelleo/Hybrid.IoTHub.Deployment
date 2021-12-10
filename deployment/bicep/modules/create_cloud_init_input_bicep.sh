@@ -12,5 +12,5 @@ sed "s/%%RANCHER_DOCKER_INSTALL_URL%%/${RANCHER_DOCKER_INSTALL_URL}/g; \
      s/%%HELM_TAR_BALL%%/${HELM_TAR_BALL}/g; \
      s/%%ARGOCD_VERSION%%/${ARGOCD_VERSION}/g; \
      s/%%ARGOCD_NAMESPACE%%/${ARGOCD_NAMESPACE}/g; \
-     s/%%HOST_IP_ADDRESS%%/${HOST_IP_ADDRESS}/g; \
+     s/%%HOST_IP_ADDRESS_OR_FQDN%%/${HOST_IP_ADDRESS_OR_FQDN}/g; \
      " cloud-init-template.yml | base64 | tr -d '\n\r' |  awk '{printf "{\"cloudInitFileAsBase64\": \"%s\"}", $1}' > ${AZ_SCRIPTS_OUTPUT_PATH}
