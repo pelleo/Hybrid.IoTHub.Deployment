@@ -378,7 +378,7 @@ resource generateCloudInitDeploymentScript 'Microsoft.Resources/deploymentScript
     }
   }
   properties: {
-    azCliVersion: 'latest'
+    azCliVersion: '2.24.0'
     environmentVariables: [
       {
         name: 'RANCHER_DOCKER_INSTALL_URL'
