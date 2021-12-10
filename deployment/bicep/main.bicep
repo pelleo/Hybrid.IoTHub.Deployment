@@ -168,5 +168,5 @@ output aksStorageAccountName string = aksinfra.outputs.storageAccountName
 output iotHubName string = iotinfra.outputs.iotHubName
 output iotStorageAccountName string = iotinfra.outputs.storageAccountName
 output cloudInitFileAsBase64 string = vminfra.outputs.cloudInitFileAsBase64
-output publicIpAddress string = vminfra.outputs.publicIpAddress
+//output publicIpAddress string = vminfra.outputs.publicIpAddress
 output fqdn string = vminfra.outputs.fqdn

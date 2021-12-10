@@ -402,7 +402,7 @@ resource generateCloudInitDeploymentScript 'Microsoft.Resources/deploymentScript
       }
       {
         name: 'HOST_IP_ADDRESS'
-        value: publicIP.properties.ipAddress
+        value: publicIP.properties.dnsSettings.fqdn
       }
     ]
     storageAccountSettings: {
@@ -419,7 +419,6 @@ resource generateCloudInitDeploymentScript 'Microsoft.Resources/deploymentScript
   }
 }
 
-
 output cloudInitFileAsBase64 string = generateCloudInitDeploymentScript.properties.outputs.cloudInitFileAsBase64
-output publicIpAddress string = publicIP.properties.ipAddress
+//output publicIpAddress string = publicIP.properties.ipAddress
 output fqdn string = publicIP.properties.dnsSettings.fqdn
