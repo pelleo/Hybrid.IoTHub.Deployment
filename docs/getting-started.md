@@ -117,4 +117,4 @@ Wait until the workflow has terminated successfully.
 
 **Note:**  `download_kubecfg.sh` uses the `scp` option `StrictHostKeyChecking no`.  This is not recommended practice, but is used in this demo environment to suppress manual host confirmation to simplify download automation of kubeconfig.
 
-**Note:**  Editing `download_kubecfg.sh` is needed only the first time the GitHub workflow is executed.  As long as the K3s resource group ID remains the same, the FQDN will not be changed.  This remark applies even to the case where the resource groups are deleted completely.
+**Note:**  Editing `download_kubecfg.sh` is needed only the first time the GitHub workflow is executed.  As long as the K3s resource group ID remains the same, the FQDN will not change.  This remark applies even to the case where the resource groups are deleted completely.
