@@ -85,9 +85,20 @@ Synchronize the local Git repository with the GitHub origin if necessary.  At th
 For general infromation on Git Actions, please see https://docs.github.com/en/actions
 
 # Execute GitHub actions workflow
-Main steps:
-- Select `Actions` from the menu at the top of the page and highlight `IoTHub Infrastructure Deployment` to launch the workflow.  Wait until the workflow terminates.  
-- Navigate to the `${REPO_ROOT}/scripts` directory
+Select `Actions` from the menu at the top of the page and highlight `IoTHub Infrastructure Deployment` to launch the workflow.  Wait until the workflow terminates.  
+
+# Download kubeconfig
+Wait until the workflow has terminated successfully.
+- Open the workflow logs and drill down into the `Create IoT Hub Infrastructure` step
+- Scroll down the logs and look for the `outputs:` key.
+- Copy the `fqdn` value
+- Navigate to the `${REPO_ROOT}/scripts` directory and open `download_kubecfg.sh` in a text editor
+- Set the following variables:
+  ```
+  SERVER=<Copied FQDN>
+  KUBECONFIG_DIR=<Full path to default kubeconfig directory>
+  ```
+  Typical`KUBECONFIG_DIR` values include `/c/Users/<username>/.kube` or `/mnt/c/Users/<username>/.kube` for a WSL based environment.  For native Linux the default location is `~/.kube`
 - Run
   ```
   $ ./download_kubecfg.sh
@@ -102,5 +113,8 @@ Main steps:
   kubectl get nodes
   ```
 
-  **Note:**  The `download_kubecfg.sh` uses the `scp` option `StrictHostKeyChecking no`.  This is not recommended practice, but is used in this demo environment to suppress manual host confirmation to simplify download automation of kubeconfig.
-  
+**Note:**  `download_kubecfg.sh` will make a backup of the original kubeconfig file (`config<random>.bak`) and then overwrite the existing default kubeconfig file.  To restore the original `config` file, simply run `mv ${KUBECONFIG_DIR}/config<random>.bak  ${KUBECONFIG_DIR}/config` 
+
+**Note:**  `download_kubecfg.sh` uses the `scp` option `StrictHostKeyChecking no`.  This is not recommended practice, but is used in this demo environment to suppress manual host confirmation to simplify download automation of kubeconfig.
+
+**Note:**  Editing `download_kubecfg.sh` is needed only the first time the GitHub workflow is executed.  As long as the K3s resource group ID remains the same, the FQDN will not be changed.  This remark applies even to the case where the resource groups are deleted completely.
