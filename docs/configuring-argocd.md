@@ -1,0 +1,1 @@
+Before configuring Argo CD, please be sure to have carried out all necessary steps described in [Getting Started](./getting-started.md)

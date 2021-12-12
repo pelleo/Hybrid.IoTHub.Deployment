@@ -18,4 +18,7 @@ The second environment is an AKS cluster, which is meant to represent an "epheme
 The Argo CD instance running on the K3s cluster is used to deploy K8s workloads on the AKS as well as the K3s cluster.  Both environments are created via [GitHub Actions](https://docs.github.com/en/actions) automation.
 
 # Documentation
-Documentation for the Hybrid.IoTHub.Deployment project can be found [here](docs/introduction.md).
+Documentation for the Hybrid.IoTHub.Deployment project can be found at:
+- [Overview](docs/overview.md)
+- [Getting started](docs/getting-started.md)
+- [Configuring Argo CD](configuring-argocd.md)
