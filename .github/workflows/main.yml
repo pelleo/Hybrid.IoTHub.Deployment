@@ -49,7 +49,8 @@ jobs:
                            aksClientSecret=${{ secrets.AKS_CLIENT_SECRET }} \
                            fileShareType=$FILE_SHARE_TYPE \
                            dpsDeployment=$DPS_DEPLOYMENT \
-                           cloudInitScriptUri=$CLOUD_INIT_SCRIPT_URI
+                           cloudInitScriptUri=$CLOUD_INIT_SCRIPT_URI \
+                           sshRSAPublicKey=${{ secrets.SSH_RSA_PUBLIC_KEY }}
 
             az deployment sub show \
               --name AKS_IoT_K3S_deploy \
