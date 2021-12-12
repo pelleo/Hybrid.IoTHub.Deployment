@@ -1,5 +1,5 @@
 #/bin/bash
-set -euo pipefail
+#set -euo pipefail
 
 # Login information for Azure VM hosting Argo CD service.
 SERVER=demo-y4sz7dkvnweq4.westeurope.cloudapp.azure.com
@@ -7,10 +7,6 @@ ADMIN_USERNAME=adminuser
 
 # Default local kubeconfig directory.
 KUBECONFIG_DIR=/c/Users/pelleo/.kube
-
-# AKS cluster info.
-AKS_RG_NAME=rg-aks-demo
-AKS_CLUSTER_NAME=demo-aks
 
 # Argo CD config.
 ARGOCD_NAMESPACE=argocd
@@ -28,18 +24,6 @@ REPO_NAME=${REPO_NAME%%.git}
 SCRIPT_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 LOCAL_PARENT_DIR=${SCRIPT_PATH%%${REPO_NAME}*}
 LOCAL_REPO_ROOT=${LOCAL_PARENT_DIR}/${REPO_NAME}
-
-# Navigate to script dir.  Download kubeconfig and node token from VM.
-ssh-keygen -f ${HOME}/.ssh/known_hosts -R ${SERVER}
-scp -o "StrictHostKeyChecking no" ${ADMIN_USERNAME}@${SERVER}:k3s-config ${LOCAL_REPO_ROOT}/local
-scp -o "StrictHostKeyChecking no" ${ADMIN_USERNAME}@${SERVER}:node-token ${LOCAL_REPO_ROOT}/local
-
-# WSL fix. Must copy the new kubeconfig to default WSL location.
-mv ${KUBECONFIG_DIR}/config ${KUBECONFIG_DIR}/config.bak           # Backup existing kubeconfig
-cp ${LOCAL_REPO_ROOT}/local/k3s-config ${KUBECONFIG_DIR}/config
-
-# Merge AKS cluster kubeconfig into default config store.
-az aks get-credentials -g ${AKS_RG_NAME} -n ${AKS_CLUSTER_NAME}
 
 # K3s kubeconfig context required when configuring ArgoCD.
 kubectl config get-contexts -o name
@@ -78,7 +62,7 @@ kubectl config get-contexts -o name
 argocd cluster add demo-aks
 
 # Configure port forwarding.
-kubectl port-forward svc/${ARGOCD_SERVER_SVC_NAME} -n ${ARGOCD_NAMESPACE} 8080:443 
+#kubectl port-forward svc/${ARGOCD_SERVER_SVC_NAME} -n ${ARGOCD_NAMESPACE} 8080:443 
 
 # Open a browser and navigate to http://localhost:8080 and logon on using the new password:
 #
@@ -87,5 +71,3 @@ kubectl port-forward svc/${ARGOCD_SERVER_SVC_NAME} -n ${ARGOCD_NAMESPACE} 8080:4
 #
 # When done, type ctrl-C to terminate port-forwarding.
 
-# Restore config file.
-mv ${KUBECONFIG_DIR}/config.bak ${KUBECONFIG_DIR}/config

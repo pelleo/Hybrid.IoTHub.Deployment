@@ -69,7 +69,7 @@ Name: SSH_RSA_PUBLIC_KEY     Value: echo \'$(cat ~/.ssh/id_rsa.pub)\'
 Name: CLOUD_INIT_SCRIPT_URI  Value: https://raw.githubusercontent.com/<your_username>/Hybrid.IoTHub.Deployment/main/deployment/bicep/modules/create_cloud_init_input_string_bicep.sh
 ```
 
-Replace `<your_username>` by your actual GitHub username.  The URI must point to the the cloud-init script file.
+Replace `<your_username>` with your actual GitHub username.  The URI must point to the the cloud-init script file.
 
 **Note:** Your SSH key pair must exist and be stored in its default location (`~/.ssh/id_rsa.pub`) prior to creating the GitHub secret `SSH_RSA_PUBLIC_KEY`.
 
@@ -77,9 +77,30 @@ Replace `<your_username>` by your actual GitHub username.  The URI must point to
 First time configuration of Git Actions:
 - Copy the contents of `Hybrid.IoTHub.Deployment/.github/workflows/main.yml` to the clipboard
 - Select `Actions` from the menu at the top of the page and then `New workflow`.  Follow the `set up a workflow yourself` link
-- Paste the copied contents into `main.yaml`
+- Remove the boiler plate code and paste the copied contents into `main.yaml`
 - Commit the changes directly to `main`
 
 Synchronize the local Git repository with the GitHub origin if necessary.  At this point you should have a fully functional Git Actions pipeline.  The remaining environment variables can be left at their default values; they are used to control the behavior of the bicep templates that build the K8s infrastructure and supporting resources.
 
 For general infromation on Git Actions, please see https://docs.github.com/en/actions
+
+# Execute GitHub actions workflow
+Main steps:
+- Select `Actions` from the menu at the top of the page and highlight `IoTHub Infrastructure Deployment` to launch the workflow.  Wait until the workflow terminates.  
+- Navigate to the `${REPO_ROOT}/scripts` directory
+- Run
+  ```
+  $ ./download_kubecfg.sh
+  ```
+  If you get the message `scp: k3s-config: No such file or directory`, wait a moment and rerun the command.
+- Verify cluster access
+  ```
+  kubectl config get-contexts -o name
+  kubectl config use-context default
+  kubectl get nodes
+  kubectl config use-context demo-aks
+  kubectl get nodes
+  ```
+
+  **Note:**  The `download_kubecfg.sh` uses the `scp` option `StrictHostKeyChecking no`.  This is not recommended practice, but is used in this demo environment to suppress manual host confirmation to simplify download automation of kubeconfig.
+  
