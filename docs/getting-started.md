@@ -62,11 +62,14 @@ echo ${client_secret}
 # Create GitHub secrets
 If not already logged in to GitHub, do so now and navigate to the recently forked repository.  Select `Settings` from the horizontal menu and then `Secrets`.  Create the following secrets:
 ```
-Name: AZURE_CREDENTIALS     Value: ${sdk_auth}         # Entire JSON output from SP creation
-Name: AKS_CLIENT_ID         Value: ${client_id}
-Name: AKS_CLIENT_SECRET     Value: ${client_secret}
-Name: SSH_RSA_PUBLIC_KEY    Value: echo \'$(cat ~/.ssh/id_rsa.pub)\'
+Name: AZURE_CREDENTIALS      Value: ${sdk_auth}         # Entire JSON output from SP creation
+Name: AKS_CLIENT_ID          Value: ${client_id}
+Name: AKS_CLIENT_SECRET      Value: ${client_secret}
+Name: SSH_RSA_PUBLIC_KEY     Value: echo \'$(cat ~/.ssh/id_rsa.pub)\'
+Name: CLOUD_INIT_SCRIPT_URI  Value: https://raw.githubusercontent.com/<your_username>/Hybrid.IoTHub.Deployment/main/deployment/bicep/modules/create_cloud_init_input_string_bicep.sh
 ```
+
+Replace `<your_username>` by your actual GitHub username.  The URI must point to the the cloud-init script file.
 
 **Note:** Your SSH key pair must exist and be stored in its default location (`~/.ssh/id_rsa.pub`) prior to creating the GitHub secret `SSH_RSA_PUBLIC_KEY`.
 
