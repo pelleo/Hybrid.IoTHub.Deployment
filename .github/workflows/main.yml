@@ -48,7 +48,8 @@ jobs:
                            aksClientId=${{ secrets.AKS_CLIENT_ID }} \
                            aksClientSecret=${{ secrets.AKS_CLIENT_SECRET }} \
                            fileShareType=$FILE_SHARE_TYPE \
-                           dpsDeployment=$DPS_DEPLOYMENT
+                           dpsDeployment=$DPS_DEPLOYMENT \
+                           cloudInitScriptUri=$CLOUD_INIT_SCRIPT_URI
 
             az deployment sub show \
               --name AKS_IoT_K3S_deploy \
@@ -63,3 +64,4 @@ jobs:
           VM_DEPLOYMENT: yes
           DPS_DEPLOYMENT: no
           FILE_SHARE_TYPE: SMB
+          CLOUD_INIT_SCRIPT_URI: https://raw.githubusercontent.com/pelleo/Hybrid.IoTHub.Deployment/main/deployment/bicep/modules/create_cloud_init_input_string_bicep.sh
