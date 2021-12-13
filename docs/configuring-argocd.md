@@ -13,7 +13,7 @@ Main steps:
   Replace `<your_username>` with your actual GitHub username.  The URL must point to the root of the forked repository.
 - Run
   ```
-  $ ./configue_argocd.sh
+  $ ./configure_argocd.sh
   ```
   Ignore the error message `"FATA[0030] rpc error: code = Unauthenticated desc = Invalid username or password"`.
 
@@ -28,7 +28,7 @@ $ kubectl port-forward svc/${ARGOCD_SERVER_SVC_NAME} -n ${ARGOCD_NAMESPACE} 8080
 ```
 
 Open a browser and navigate to `http://localhost:8080` and logon on using the new password:
-- Username: admin
+- Username: `admin`
 - Password: `<new password>`
 
 When done, type `ctrl-C` to terminate port-forwarding.

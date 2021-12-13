@@ -81,7 +81,7 @@ var domainNameLabel = '${dnsLabelPrefix}-${resourceNameSuffix}'
 // Config data needed for dymanically created cloud-init config file.
 @description('Name of managed identity used when creating cloud-init.yaml dynmically')
 var identityName = 'boot'
-var customRoleName = 'deployment-script-minimum-privilege-for-deployment-principal'
+var customRoleName = 'deployment_script_minimum_privilege_for_deployment_principal'
 
 @description('Generate resource ID of managed identity since .id property appears to be unsupported')
 var miId = resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', identityName)
