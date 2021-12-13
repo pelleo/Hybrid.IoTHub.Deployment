@@ -18,3 +18,17 @@ Main steps:
   Ignore the error message `"FATA[0030] rpc error: code = Unauthenticated desc = Invalid username or password"`.
 
 **Note:**  Editing `configure_argocd.sh` is needed only the first time the GitHub workflow is executed.  As long as the K3s resource group ID remains the same, the FQDN will not change.  This remark applies even to the case where the resource groups are deleted completely.
+
+# Set up port-forwarding
+By default Argo CD does not expose any public endpoints.  Instead the Argo CD main service is accessed via port-forwarding.  It is possible to patch the service to be of LoadBalancer type.  The current implementation does not include a load balancer resource, however.  
+
+Run the following command from your bash terminal:
+```
+$ kubectl port-forward svc/${ARGOCD_SERVER_SVC_NAME} -n ${ARGOCD_NAMESPACE} 8080:443 
+```
+
+Open a browser and navigate to `http://localhost:8080` and logon on using the new password:
+- Username: admin
+- Password: <new password>
+
+When done, type `ctrl-C` to terminate port-forwarding.
