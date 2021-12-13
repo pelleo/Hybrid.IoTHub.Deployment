@@ -69,7 +69,7 @@ Name: SSH_RSA_PUBLIC_KEY     Value: echo \'$(cat ~/.ssh/id_rsa.pub)\'
 Name: CLOUD_INIT_SCRIPT_URI  Value: https://raw.githubusercontent.com/<your_username>/Hybrid.IoTHub.Deployment/main/deployment/bicep/modules/create_cloud_init_input_string_bicep.sh
 ```
 
-Replace `<your_username>` with your actual GitHub username.  The URI must point to the the cloud-init script file.
+Replace `<your_username>` with your actual GitHub username.  The URI must point to the cloud-init script file.
 
 **Note:** Your SSH key pair must exist and be stored in its default location (`~/.ssh/id_rsa.pub`) prior to creating the GitHub secret `SSH_RSA_PUBLIC_KEY`.
 
@@ -91,11 +91,11 @@ Select `Actions` from the menu at the top of the page and highlight `IoTHub Infr
 Wait until the workflow has terminated successfully.
 - Open the workflow logs and drill down into the `Create IoT Hub Infrastructure` step
 - Scroll down the logs and look for the `outputs:` key.
-- Copy the `fqdn` value
+- Copy the `fqdn` value.  Save for later use (it will be needed when configuring Argo CD for first time use)
 - Navigate to the `${REPO_ROOT}/scripts` directory and open `download_kubecfg.sh` in a text editor
 - Set the following variables:
   ```
-  SERVER=<Copied FQDN>
+  SERVER=<Copied FQDN of K3s host>
   KUBECONFIG_DIR=<Full path to default kubeconfig directory>
   ```
   Typical`KUBECONFIG_DIR` values include `/c/Users/<username>/.kube` or `/mnt/c/Users/<username>/.kube` for a WSL based environment.  For native Linux the default location is `~/.kube`

@@ -5,19 +5,16 @@
 SERVER=demo-y4sz7dkvnweq4.westeurope.cloudapp.azure.com
 ADMIN_USERNAME=adminuser
 
-# Default local kubeconfig directory.
-KUBECONFIG_DIR=/c/Users/pelleo/.kube
+# Repository information.
+REPO_URL=https://github.com/pelleo/Hybrid.IoTHub.Deployment.git
+REPO_NAME=${REPO_URL##*/}
+REPO_NAME=${REPO_NAME%%.git}
 
 # Argo CD config.
 ARGOCD_NAMESPACE=argocd
 ARGOCD_ADMIN=admin
 ARGOCD_PWD=P@szw0rd
 ARGOCD_APP_PATH=clusters/k3s/guestbook
-
-# Repository information.
-REPO_URL=https://github.com/pelleo/Hybrid.IoTHub.Deployment.git
-REPO_NAME=${REPO_URL##*/}
-REPO_NAME=${REPO_NAME%%.git}
 
 # Get path to current script. Use below syntax rather than SCRIPTPATH=`pwd` 
 # for proper handling of edge cases like spaces and symbolic links.
