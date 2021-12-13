@@ -8,7 +8,7 @@ You will need a bash client (native Linux or WSL2) with the following software i
 - Bicep
 - Helm
 - Argo CD CLI
-- Standard bash scripting tools such as `jq`
+- Standard bash utilities such as `ssh`, `ssh-keygen`, `scp` and `jq`
 
 # Initial setup
 Before setting up the project, make sure that you are logged-in to Azure with owner/contributor rights on the associated subscription.  
@@ -59,13 +59,22 @@ echo ${client_id}
 echo ${client_secret}
 ```
 
+# Create SSH key pair
+We will generate an SSH key pair specifically for logging to the AKS and K3s host VMs in Azure. via SSH  Navigate to the `scripts` directory.  Run
+```
+$ ./create_ssh_key_pair.sh
+```
+Leave the input empty when prompted for a password.  This will create a private and a public key in the `local/.ssh` directory.
+
+**Note:**  The `local` folder and its subfolders are not uploaded to GitHub.
+
 # Create GitHub secrets
 If not already logged in to GitHub, do so now and navigate to the recently forked repository.  Select `Settings` from the horizontal menu and then `Secrets`.  Create the following secrets:
 ```
-Name: AZURE_CREDENTIALS      Value: ${sdk_auth}         # Entire JSON output from SP creation
+Name: AZURE_CREDENTIALS      Value: ${sdk_auth}                                # Entire JSON output from SP creation
 Name: AKS_CLIENT_ID          Value: ${client_id}
 Name: AKS_CLIENT_SECRET      Value: ${client_secret}
-Name: SSH_RSA_PUBLIC_KEY     Value: echo \'$(cat ~/.ssh/id_rsa.pub)\'
+Name: SSH_RSA_PUBLIC_KEY     Value: echo \'$(cat ${LOCAL_REPO_ROOT}/local/.ssh/id_rsa.pub)\'    
 Name: CLOUD_INIT_SCRIPT_URI  Value: https://raw.githubusercontent.com/<your_username>/Hybrid.IoTHub.Deployment/main/deployment/bicep/modules/create_cloud_init_input_string_bicep.sh
 ```
 

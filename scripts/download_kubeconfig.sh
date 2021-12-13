@@ -23,8 +23,8 @@ LOCAL_REPO_ROOT=${LOCAL_PARENT_DIR}/${REPO_NAME}
 
 # Navigate to script dir.  Download kubeconfig and node token from VM.
 ssh-keygen -f ${HOME}/.ssh/known_hosts -R ${SERVER}
-scp -o "StrictHostKeyChecking no" ${ADMIN_USERNAME}@${SERVER}:k3s-config ${LOCAL_REPO_ROOT}/local
-scp -o "StrictHostKeyChecking no" ${ADMIN_USERNAME}@${SERVER}:node-token ${LOCAL_REPO_ROOT}/local
+scp -i ${LOCAL_REPO_ROOT}/local/.ssh/id_rsa -o "StrictHostKeyChecking no" ${ADMIN_USERNAME}@${SERVER}:k3s-config ${LOCAL_REPO_ROOT}/local
+scp -i ${LOCAL_REPO_ROOT}/local/.ssh/id_rsa -o "StrictHostKeyChecking no" ${ADMIN_USERNAME}@${SERVER}:node-token ${LOCAL_REPO_ROOT}/local
 
 # WSL fix. Must copy the new kubeconfig to default WSL location.
 mv ${KUBECONFIG_DIR}/config ${KUBECONFIG_DIR}/config${RANDOM}.bak           # Backup existing kubeconfig
