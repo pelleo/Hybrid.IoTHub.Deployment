@@ -32,3 +32,20 @@ Open a browser and navigate to `http://localhost:8080` and logon on using the ne
 - Password: `<new password>`
 
 When done, type `ctrl-C` to terminate port-forwarding.
+
+# Add an application via the Argo CD GUI
+Make sure you are logged in to the Argo CD GUI.
+- Click `+ NEW APP`
+- Fill in the following information:
+  o Application Name:  An arbitry name for your application, e.g., `guestbookaks`
+  o Project: `default`
+  o SYNC POLICY: `Manual`
+  o SYNC OPTIONS: Check `AUTO-CREATE NAMESPACE`
+  o Repository URL: Select your repository from the dropdown list
+  o Revision: `HEAD`
+  o Path: `clusters/aks/guestbook`
+  o Cluster Name:  Switch from `URL` to `NAME` and select the AKS cluster name from the dropdown list
+  o Namespace: `guestbook`
+- Click `CREATE`
+
+Select the new application and synchronize manually.  After a few moments the guestbook application should be up and running.
