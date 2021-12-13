@@ -30,6 +30,8 @@ kubectl config use-context default
 kubectl -n ${ARGOCD_NAMESPACE} get all
 ARGOCD_SERVER_POD_NAME=$(kubectl get pod -n ${ARGOCD_NAMESPACE} -l app.kubernetes.io/name=argocd-server --output=jsonpath="{.items[*].metadata.name}")
 ARGOCD_SERVER_SVC_NAME=$(kubectl get svc -n ${ARGOCD_NAMESPACE} -l app.kubernetes.io/name=argocd-server --output=jsonpath="{.items[*].metadata.name}")
+kubectl -n ${ARGOCD_NAMESPACE} get pods -o jsonpath='{.items[*].status.containerStatuses[]}' | jq '. | {name, ready}'
+kubectl -n ${ARGOCD_NAMESPACE} get pods -o jsonpath='{.items[*].status.containerStatuses[].ready}' | grep true
 kubectl wait --for=condition=Ready --timeout=600s -n ${ARGOCD_NAMESPACE} pod/${ARGOCD_SERVER_POD_NAME}
 sleep 10s
 
