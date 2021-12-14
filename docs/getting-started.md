@@ -101,7 +101,7 @@ Wait until the workflow has terminated successfully.
 - Open the workflow logs and drill down into the `Create IoT Hub Infrastructure` step
 - Scroll down the logs and look for the `outputs:` key.
 - Copy the `fqdn` value.  Save for later use (it will be needed when configuring Argo CD for first time use)
-- Navigate to the `${REPO_ROOT}/scripts` directory and open `download_kubecfg.sh` in a text editor
+- Navigate to the `${REPO_ROOT}/scripts` directory and open `download_kubeconfig.sh` in a text editor
 - Set the following variables:
   ```
   SERVER=<Copied FQDN of K3s host>
@@ -110,7 +110,7 @@ Wait until the workflow has terminated successfully.
   Typical`KUBECONFIG_DIR` values include `/c/Users/<username>/.kube` or `/mnt/c/Users/<username>/.kube` for a WSL based environment.  For native Linux the default location is `~/.kube`
 - Run
   ```
-  $ ./download_kubecfg.sh
+  $ ./download_kubeconfig.sh
   ```
   If you get the message `scp: k3s-config: No such file or directory`, wait a moment and rerun the command.
 - Verify cluster access
@@ -122,8 +122,8 @@ Wait until the workflow has terminated successfully.
   kubectl get nodes
   ```
 
-**Note:**  `download_kubecfg.sh` will make a backup of the original kubeconfig file (`config<random>.bak`) and then overwrite the existing default kubeconfig file.  To restore the original `config` file, simply run `mv ${KUBECONFIG_DIR}/config<random>.bak  ${KUBECONFIG_DIR}/config` 
+**Note:**  `download_kubeconfig.sh` will make a backup of the original kubeconfig file (`config<random>.bak`) and then overwrite the existing default kubeconfig file.  To restore the original `config` file, simply run `mv ${KUBECONFIG_DIR}/config<random>.bak  ${KUBECONFIG_DIR}/config` 
 
-**Note:**  `download_kubecfg.sh` uses the `scp` option `StrictHostKeyChecking no`.  This is not recommended practice, but is used in this demo environment to suppress manual host confirmation to simplify download automation of kubeconfig.
+**Note:**  `download_kubeconfig.sh` uses the `scp` option `StrictHostKeyChecking no`.  This is not recommended practice, but is used in this demo environment to suppress manual host confirmation to simplify download automation of kubeconfig.
 
-**Note:**  Editing `download_kubecfg.sh` is needed only the first time the GitHub workflow is executed.  As long as the K3s resource group ID remains the same, the FQDN will not change.  This remark applies even to the case where the resource groups are deleted completely.
+**Note:**  Editing `download_kubeconfig.sh` is needed only the first time the GitHub workflow is executed.  As long as the K3s resource group ID remains the same, the FQDN will not change.  This remark applies even to the case where the resource groups are deleted completely.

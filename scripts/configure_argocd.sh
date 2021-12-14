@@ -26,14 +26,33 @@ LOCAL_REPO_ROOT=${LOCAL_PARENT_DIR}/${REPO_NAME}
 kubectl config get-contexts -o name
 kubectl config use-context default
 
-# Verify ArgoCD deploymemnt.  Timeout after 10 minutes.
+# Monitor Argo CD deploymemnt.  Timeout after 10 minutes.
+n=50
+for (( i=1; i<=n; i++ ))
+do  
+    echo ""
+    echo "Checking container status ${i} times out of ${n}:"
+    echo ""
+    sleep 10
+    
+    # Test if there are containers still not ready
+    READY_STATUS=$(kubectl -n ${ARGOCD_NAMESPACE} get pods -o jsonpath='{.items[*].status.containerStatuses[?(@.ready==false)].ready}' )
+
+    # Get container status objects, convert to array of objects (jq -s .)
+    CONTAINER_STATUS=$(kubectl -n ${ARGOCD_NAMESPACE} get pods -o jsonpath='{.items[*].status.containerStatuses[]}' | jq -s .)
+    echo ${CONTAINER_STATUS} | jq -r  '["READY", "CONTAINER NAME"], ["-----", "----------------------"], (.[] | [.ready, .name]) | @tsv'
+
+    # Exit loop if all containers are ready ("control statement form").
+    [[ ! -z ${READY_STATUS} ]] || break
+done
+
+# Give some extra time for everything to stabilize
+sleep 10
+echo ""
 kubectl -n ${ARGOCD_NAMESPACE} get all
-ARGOCD_SERVER_POD_NAME=$(kubectl get pod -n ${ARGOCD_NAMESPACE} -l app.kubernetes.io/name=argocd-server --output=jsonpath="{.items[*].metadata.name}")
+#ARGOCD_SERVER_POD_NAME=$(kubectl get pod -n ${ARGOCD_NAMESPACE} -l app.kubernetes.io/name=argocd-server --output=jsonpath="{.items[*].metadata.name}")
 ARGOCD_SERVER_SVC_NAME=$(kubectl get svc -n ${ARGOCD_NAMESPACE} -l app.kubernetes.io/name=argocd-server --output=jsonpath="{.items[*].metadata.name}")
-kubectl -n ${ARGOCD_NAMESPACE} get pods -o jsonpath='{.items[*].status.containerStatuses[]}' | jq '. | {name, ready}'
-kubectl -n ${ARGOCD_NAMESPACE} get pods -o jsonpath='{.items[*].status.containerStatuses[].ready}' | grep true
-kubectl wait --for=condition=Ready --timeout=600s -n ${ARGOCD_NAMESPACE} pod/${ARGOCD_SERVER_POD_NAME}
-sleep 10s
+#kubectl wait --for=condition=Ready --timeout=600s -n ${ARGOCD_NAMESPACE} pod/${ARGOCD_SERVER_POD_NAME}
 
 # Retrieve random password generated during ArgoCD installation.
 ARGOCD_AUTO_PWD=$(kubectl -n ${ARGOCD_NAMESPACE} get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
@@ -45,8 +64,6 @@ argocd login ${SERVER} --password ${ARGOCD_AUTO_PWD} --username ${ARGOCD_ADMIN} 
 argocd account update-password --current-password ${ARGOCD_AUTO_PWD} --new-password ${ARGOCD_PWD} --insecure
 
 # Allow direct external access (no port-forwarding required).  MUST INSTALL LOADBALANCER RESOURCE!!!  NodePort will not work in Azure!!!
-#kubectl expose deployment.apps/demo-argo-cd-argocd-server --type="NodePort" --port 8080 --name=argo-nodeport -n argocd  
-#kubectl patch service/demo-argo-cd-argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
 #kubectl patch svc/${ARGOCD_SERVER_SVC_NAME} -n ${ARGOCD_NAMESPACE} -p '{"spec": {"type": "LoadBalancer"}}'
 
 # Install sample application.  New login required since credentials changed.
@@ -69,4 +86,3 @@ argocd cluster add demo-aks
 # Password: <new password>
 #
 # When done, type ctrl-C to terminate port-forwarding.
-
