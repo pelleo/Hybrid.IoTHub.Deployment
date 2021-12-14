@@ -31,7 +31,7 @@ n=50
 for (( i=1; i<=n; i++ ))
 do  
     echo ""
-    echo "Checking container status ${i} times out of ${n}:"
+    echo "Checking container status ${i} times out of ${n} ..."
     echo ""
     sleep 10
     
@@ -46,21 +46,28 @@ do
     [[ ! -z ${READY_STATUS} ]] || break
 done
 
-# Give some extra time for everything to stabilize
+# Give some extra time for everything to stabilize.
 sleep 10
 echo ""
+echo "Resources in ${ARGOCD_NAMESPACE} namespace:"
+echo ""
 kubectl -n ${ARGOCD_NAMESPACE} get all
-#ARGOCD_SERVER_POD_NAME=$(kubectl get pod -n ${ARGOCD_NAMESPACE} -l app.kubernetes.io/name=argocd-server --output=jsonpath="{.items[*].metadata.name}")
-ARGOCD_SERVER_SVC_NAME=$(kubectl get svc -n ${ARGOCD_NAMESPACE} -l app.kubernetes.io/name=argocd-server --output=jsonpath="{.items[*].metadata.name}")
-#kubectl wait --for=condition=Ready --timeout=600s -n ${ARGOCD_NAMESPACE} pod/${ARGOCD_SERVER_POD_NAME}
 
 # Retrieve random password generated during ArgoCD installation.
+echo ""
+echo "Initial Argo CD password:"
+echo ""
 ARGOCD_AUTO_PWD=$(kubectl -n ${ARGOCD_NAMESPACE} get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 echo ${ARGOCD_AUTO_PWD}
 
 # Reset password.  Ignore error msg "FATA[0030] rpc error: code = Unauthenticated desc = Invalid username or password".
 export ARGOCD_OPTS='--port-forward-namespace argocd'
 argocd login ${SERVER} --password ${ARGOCD_AUTO_PWD} --username ${ARGOCD_ADMIN} --insecure
+
+echo ""
+echo "Changing Argo CD password ..."
+echo ""
+sleep 5
 argocd account update-password --current-password ${ARGOCD_AUTO_PWD} --new-password ${ARGOCD_PWD} --insecure
 
 # Allow direct external access (no port-forwarding required).  MUST INSTALL LOADBALANCER RESOURCE!!!  NodePort will not work in Azure!!!
@@ -68,16 +75,27 @@ argocd account update-password --current-password ${ARGOCD_AUTO_PWD} --new-passw
 
 # Install sample application.  New login required since credentials changed.
 argocd login ${SERVER} --password ${ARGOCD_PWD}  --username ${ARGOCD_ADMIN} --insecure
+
+echo ""
+echo "Changing creating guestbook sample app ..."
+echo ""
+sleep 5
 argocd app create guestbook --repo ${REPO_URL} --path ${ARGOCD_APP_PATH} --dest-server https://kubernetes.default.svc --dest-namespace default
 
 # Connect GitHub repo.
+echo ""
+echo "Connecting GitHub repo ${REPO_URL} ..."
+echo ""
 argocd repo add ${REPO_URL}
 
 # Add AKS cluster to ArgoCD
-kubectl config get-contexts -o name
+echo ""
+echo "Adding AKS cluster ..."
+echo ""
 argocd cluster add demo-aks
 
 # Configure port forwarding.
+#ARGOCD_SERVER_SVC_NAME=$(kubectl get svc -n ${ARGOCD_NAMESPACE} -l app.kubernetes.io/name=argocd-server --output=jsonpath="{.items[*].metadata.name}")
 #kubectl port-forward svc/${ARGOCD_SERVER_SVC_NAME} -n ${ARGOCD_NAMESPACE} 8080:443 
 
 # Open a browser and navigate to http://localhost:8080 and logon on using the new password:
