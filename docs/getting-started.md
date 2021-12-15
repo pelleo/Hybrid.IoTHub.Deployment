@@ -74,11 +74,11 @@ If not already logged in to GitHub, do so now and navigate to the recently forke
 Name: AZURE_CREDENTIALS      Value: ${sdk_auth}                                # Entire JSON output from SP creation
 Name: AKS_CLIENT_ID          Value: ${client_id}
 Name: AKS_CLIENT_SECRET      Value: ${client_secret}
-Name: SSH_RSA_PUBLIC_KEY     Value: echo \'$(cat ${LOCAL_REPO_ROOT}/local/.ssh/id_rsa.pub)\'    
+Name: SSH_RSA_PUBLIC_KEY     Value: echo \'$(cat <your_local_repository_root>/local/.ssh/id_rsa.pub)\'    
 Name: CLOUD_INIT_SCRIPT_URI  Value: https://raw.githubusercontent.com/<your_username>/Hybrid.IoTHub.Deployment/main/deployment/bicep/modules/create_cloud_init_input_string_bicep.sh
 ```
 
-Replace `<your_username>` with your actual GitHub username.  The URI must point to the cloud-init script file.
+Replace `<your_username>` with your actual GitHub username and `<your_local_repository_root>` with the full path of the `Hybrid.IoTHub.Deployment` directory.  The URI must point to the cloud-init script file.
 
 **Note:** Your SSH key pair must exist and be stored in its default location (`~/.ssh/id_rsa.pub`) prior to creating the GitHub secret `SSH_RSA_PUBLIC_KEY`.
 
@@ -112,7 +112,8 @@ Wait until the workflow has terminated successfully.
   ```
   $ ./download_kubeconfig.sh
   ```
-  If you get the message `scp: k3s-config: No such file or directory`, wait a moment and rerun the command.
+  The download script will query the VM for the kubeconfig file.  As soon as the file has been created it will be downloaded automatically by the script.
+  
 - Verify cluster access
   ```
   kubectl config get-contexts -o name

@@ -15,7 +15,7 @@ Main steps:
   ```
   $ ./configure_argocd.sh
   ```
-  Ignore the error message `"FATA[0030] rpc error: code = Unauthenticated desc = Invalid username or password"`.
+  The script will periodically check that status of all Argo CD containers to ensure that their status is `Ready` before attempting to configure Argo CD.  Ignore the error message `"FATA[0030] rpc error: code = Unauthenticated desc = Invalid username or password"`.
 
 **Note:**  Editing `configure_argocd.sh` is needed only the first time the GitHub workflow is executed.  As long as the K3s resource group ID remains the same, the FQDN will not change.  This remark applies even to the case where the resource groups are deleted completely.
 
@@ -24,7 +24,7 @@ By default Argo CD does not expose any public endpoints.  Instead the Argo CD ma
 
 Run the following command from your bash terminal:
 ```
-$ kubectl port-forward svc/${ARGOCD_SERVER_SVC_NAME} -n ${ARGOCD_NAMESPACE} 8080:443 
+$ kubectl port-forward svc/argocd-demo-server -n argocd 8080:443 
 ```
 
 Open a browser and navigate to `http://localhost:8080` and logon on using the new password:

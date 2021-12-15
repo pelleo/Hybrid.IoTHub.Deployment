@@ -57,7 +57,7 @@ fi
 echo ""
 echo "Downloading  ${SERVER}:${FILE_PATH} to ${LOCAL_REPO_ROOT}/local ..."
 echo ""
-sleep 5
+sleep 10
 scp -i ${LOCAL_REPO_ROOT}/local/.ssh/id_rsa -o "StrictHostKeyChecking no" ${ADMIN_USERNAME}@${SERVER}:k3s-config ${LOCAL_REPO_ROOT}/local
 scp -q -i ${LOCAL_REPO_ROOT}/local/.ssh/id_rsa -o "StrictHostKeyChecking no" ${ADMIN_USERNAME}@${SERVER}:node-token ${LOCAL_REPO_ROOT}/local
 

@@ -27,13 +27,13 @@ kubectl config get-contexts -o name
 kubectl config use-context default
 
 # Monitor Argo CD deploymemnt.  Timeout after 10 minutes.
-n=50
+n=30
 for (( i=1; i<=n; i++ ))
 do  
     echo ""
     echo "Checking container status ${i} times out of ${n} ..."
     echo ""
-    sleep 10
+    sleep 20
     
     # Test if there are containers still not ready
     READY_STATUS=$(kubectl -n ${ARGOCD_NAMESPACE} get pods -o jsonpath='{.items[*].status.containerStatuses[?(@.ready==false)].ready}' )
