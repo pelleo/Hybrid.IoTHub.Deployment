@@ -41,7 +41,7 @@ $ kubectl port-forward svc/argocd-demo-server -n argocd 8080:443
 
 Open a browser and navigate to `http://localhost:8080` and logon on using the new password:
 - Username: `admin`
-- Password: `<new password>`
+- Password: `<your_argocd_password>`
 
 When done, type `ctrl-C` to terminate port-forwarding.
 
