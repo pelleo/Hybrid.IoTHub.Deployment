@@ -8,7 +8,7 @@ Main steps:
 - Set the following variables:
   ```
   SERVER=<Saved FQDN of K3s host>
-  REPO_URL=https://github.com/<your username>/Hybrid.IoTHub.Deployment.git
+  REPO_URL=https://github.com/<your_username>/Hybrid.IoTHub.Deployment.git
   ```
   Replace `<your_username>` with your actual GitHub username.  The URL must point to the root of the forked repository.
 - Run
