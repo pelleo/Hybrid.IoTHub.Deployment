@@ -2,20 +2,20 @@
 Before configuring Argo CD, please be sure to have carried out all necessary steps described in [Getting Started](./getting-started.md).
 
 # Configure Argo CD
-Main steps:
+Carry out the following steps in the same bash terminal that was used to download the kubeconfig:
 
-- Navigate to `<your_local_repository_root>/scripts` and open `configure_argocd.sh` in a text editor
-- Set the following variables:
+- Set the following environment variables:
   ```
-  SERVER=<Saved FQDN of K3s host>
-  REPO_URL=https://github.com/<your_username>/Hybrid.IoTHub.Deployment.git
+  export HYBRID_IOTHUB_REPO_URL=https://github.com/<your_username>/Hybrid.IoTHub.Deployment.git
+  export ARGOCD_PWD=<your_argocd_password>
   ```
-  Replace `<your_username>` with your actual GitHub username.  The URL must point to the root of the forked repository.
+  Replace `<your_username>` with your actual GitHub username.  The URL must point to the root of the forked repository.  Any password will do as long as Argo CD accepts it.  It will be used when loggin on to the Argo CD UI.
 - Run
   ```
   $ ./configure_argocd.sh
   ```
-  The script will periodically check that status of all Argo CD containers to ensure that their status is `Ready` before attempting to configure Argo CD.  Ignore the error message `"FATA[0030] rpc error: code = Unauthenticated desc = Invalid username or password"` and the port-forwarding error message about broken pipe.  
+
+The script will periodically check the status of all Argo CD containers to ensure that their status is `Ready` before attempting to configure Argo CD.  Ignore the error message `"FATA[0030] rpc error: code = Unauthenticated desc = Invalid username or password"` and the port-forwarding error message about broken pipes.  
 
 Upon successful termination you should see output similar to
 ```
@@ -29,7 +29,7 @@ INFO[0000] ClusterRoleBinding "argocd-manager-role-binding" created
 Cluster 'https://demo-ew5f7zh25sedu-75aa13c3.hcp.westeurope.azmk8s.io:443' added
 ```
 
-**Note:**  Editing `configure_argocd.sh` is needed only the first time the GitHub workflow is executed.  As long as the K3s resource group ID remains the same, the FQDN will not change.  This remark applies even to the case where the resource groups are deleted completely.
+**Note:**  Configuring the environment variables is needed only once per bash session. 
 
 # Set up port-forwarding
 By default Argo CD does not expose any public endpoints.  Instead the Argo CD main service is accessed via port-forwarding.  It is possible to patch the service to be of LoadBalancer type.  The current implementation does not include a load balancer resource, however.  

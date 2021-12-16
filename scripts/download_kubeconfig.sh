@@ -2,72 +2,72 @@
 set -euo pipefail
 
 # Login information for Azure VM hosting Argo CD service.
-SERVER=demo-y4sz7dkvnweq4.westeurope.cloudapp.azure.com
-ADMIN_USERNAME=adminuser
+server=${K3S_HOST}
+admin_username=adminuser
 
 # Default local kubeconfig directory.
-KUBECONFIG_DIR=/c/Users/pelleo/.kube
+kubeconfig_dir=${KUBECONFIG_DIR}
 
 # AKS cluster info.
-AKS_RG_NAME=rg-aks-demo
-AKS_CLUSTER_NAME=demo-aks
+aks_rg_name=rg-aks-demo
+aks_cluster_name=demo-aks
 
 # Repository information.
-REPO_NAME=Hybrid.IoTHub.Deployment
+repo_name=Hybrid.IoTHub.Deployment
 
 # Get path to current script. Use below syntax rather than SCRIPTPATH=`pwd` 
 # for proper handling of edge cases like spaces and symbolic links.
-SCRIPT_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-LOCAL_PARENT_DIR=${SCRIPT_PATH%%${REPO_NAME}*}
-LOCAL_REPO_ROOT=${LOCAL_PARENT_DIR}/${REPO_NAME}
+script_path="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+local_parent_dir=${script_path%%${repo_name}*}
+local_repo_root=${local_parent_dir}/${repo_name}
 
 # File path of kubeconfig on remote K3s host
-FILE_PATH=/home/${ADMIN_USERNAME}/k3s-config
+file_path=/home/${admin_username}/k3s-config
 
 # Remove old entries from known hosts.
-ssh-keygen -f ${HOME}/.ssh/known_hosts -R ${SERVER}
+ssh-keygen -f ${HOME}/.ssh/known_hosts -R ${server}
 
 # Monitor creation of k3s-config.
-FILE_EXISTS=no
+file_exists=no
 n=24
 for (( i=1; i<=n; i++ ))
 do  
     echo ""
-    echo "Checking if ${SERVER}:${FILE_PATH} exists ${i} times out of ${n} ..."
+    echo "Checking if ${server}:${file_path} exists ${i} times out of ${n} ..."
     echo ""
     sleep 10
     
     # Test if there are containers still not ready
-    FILE_EXISTS=$(ssh -q -i ${LOCAL_REPO_ROOT}/local/.ssh/id_rsa \
+    file_exists=$(ssh -q -i ${local_repo_root}/local/.ssh/id_rsa \
         -o "StrictHostKeyChecking no" \
-        ${ADMIN_USERNAME}@${SERVER} \
-        [[ -f ${FILE_PATH} ]] && echo yes || echo no;)
+        ${admin_username}@${server} \
+        [[ -f ${file_path} ]] && echo yes || echo no;)
 
     # Exit loop if file exists ("control statement form").
-    [[ "${FILE_EXISTS}" == "yes" ]] && break
+    [[ "${file_exists}" == "yes" ]] && break
 done
 
 # Exit script if file not found.
-if [[ ${FILE_EXISTS} == "no" ]]; then
-    echo "File ${SERVER}:${FILE_PATH} not found"
+if [[ ${file_exists} == "no" ]]; then
+    echo "File ${server}:${file_path} not found"
     exit
 fi
 
 # File exists, download kubeconfig and node token from VM.
 echo ""
-echo "Downloading  ${SERVER}:${FILE_PATH} to ${LOCAL_REPO_ROOT}/local ..."
+echo "Downloading  ${server}:${file_path} to ${local_repo_root}/local ..."
 echo ""
 sleep 5
-scp -i ${LOCAL_REPO_ROOT}/local/.ssh/id_rsa -o "StrictHostKeyChecking no" ${ADMIN_USERNAME}@${SERVER}:k3s-config ${LOCAL_REPO_ROOT}/local
-scp -q -i ${LOCAL_REPO_ROOT}/local/.ssh/id_rsa -o "StrictHostKeyChecking no" ${ADMIN_USERNAME}@${SERVER}:node-token ${LOCAL_REPO_ROOT}/local
+scp -i ${local_repo_root}/local/.ssh/id_rsa -o "StrictHostKeyChecking no" ${admin_username}@${server}:k3s-config ${local_repo_root}/local
+scp -q -i ${local_repo_root}/local/.ssh/id_rsa -o "StrictHostKeyChecking no" ${admin_username}@${server}:node-token ${local_repo_root}/local
 
 # WSL fix. Must copy the new kubeconfig to default WSL location.
 echo ""
 echo "Merging K3s demo cluster kubeconfig ..."
-mv ${KUBECONFIG_DIR}/config ${KUBECONFIG_DIR}/config${RANDOM}.bak           # Backup existing kubeconfig
-cp ${LOCAL_REPO_ROOT}/local/k3s-config ${KUBECONFIG_DIR}/config
+mv ${kubeconfig_dir}/config ${kubeconfig_dir}/config${RANDOM}.bak           # Backup existing kubeconfig
+cp ${local_repo_root}/local/k3s-config ${kubeconfig_dir}/config
 
 # Merge AKS cluster kubeconfig into default config store.
 echo "Merging AKS demo cluster kubeconfig ..."
 echo ""
-az aks get-credentials -g ${AKS_RG_NAME} -n ${AKS_CLUSTER_NAME}
+az aks get-credentials -g ${aks_rg_name} -n ${aks_cluster_name}

@@ -136,21 +136,23 @@ For general infromation on Git Actions, please see https://docs.github.com/en/ac
 Wait until the workflow has terminated successfully.
 - Open the workflow logs and drill down into the `Create IoT Hub Infrastructure` step
 - Scroll down the logs and look for the `outputs:` key.
-- Copy the `fqdn` value.  Save for later use (it will be needed when configuring Argo CD for first time use)
-- Navigate to the `<your_local_repository_root>/scripts` directory and open `download_kubeconfig.sh` in a text editor
-- Set the following variables:
+- Copy the `fqdn` value.  The FQDN should look similar to `demo-y4sz7dkvnweq4.westeurope.cloudapp.azure.com`.
+- Open a bash shell and set the follwoing environment variables:
   ```
-  SERVER=<Copied FQDN of K3s host>
-  KUBECONFIG_DIR=<Full path to default kubeconfig directory>
+  $ cd <your_local_repository_root>/scripts
+  $ export K3S_HOST=<Copied FQDN of K3s host>
+  $ export KUBECONFIG_DIR=<Full path to default kubeconfig directory>
   ```
+
   Typical`KUBECONFIG_DIR` values include `/c/Users/<username>/.kube` or `/mnt/c/Users/<username>/.kube` for a WSL based environment.  For native Linux the default location is `~/.kube`.  Make sure that the path chosen reflects your client configuration.
 
-**Note:**  Before downloading the kubeconfig it is strongly recommended to save a copy of the existing kubeconfig file.
+- **Note:**  Before downloading the kubeconfig it is strongly recommended to save a copy of the existing kubeconfig file.
+- To download the kubeconfig, run
+  ```
+  $ ./download_kubeconfig.sh
+  ```
+- Leave the bash session running since you will use it when configuring Argo CD
 
-To download the kubeconfig, run
-```
-$ ./download_kubeconfig.sh
-```
 The download script will query the K3s host VM for the kubeconfig file.  As soon as the file has been created it will be downloaded automatically by the script.  The script will also download the AKS cluster kubeconfig.
   
 Verify cluster access:
@@ -166,4 +168,4 @@ kubectl get nodes
 
 **Note:**  `download_kubeconfig.sh` uses the `scp` option `StrictHostKeyChecking no`.  This is not recommended practice, but is used in this demo environment to suppress manual host confirmation to simplify download automation of kubeconfig.
 
-**Note:**  Editing `download_kubeconfig.sh` is needed only the first time the GitHub workflow is executed.  As long as the K3s resource group ID remains the same, the FQDN will not change.  This remark applies even to the case where the resource groups are deleted completely.
+**Note:**  Setting the environment variables is only needed once per bash session.  As long as the K3s resource group ID remains the same, the FQDN will not change.  This remark applies even to the case where the resource groups are deleted completely.

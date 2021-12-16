@@ -2,25 +2,24 @@
 #set -euo pipefail
 
 # Login information for Azure VM hosting Argo CD service.
-SERVER=demo-y4sz7dkvnweq4.westeurope.cloudapp.azure.com
-ADMIN_USERNAME=adminuser
+server=${K3S_HOST}
 
 # Repository information.
-REPO_URL=https://github.com/pelleo/Hybrid.IoTHub.Deployment.git
-REPO_NAME=${REPO_URL##*/}
-REPO_NAME=${REPO_NAME%%.git}
+repo_url=${HYBRID_IOTHUB_REPO_URL}
+repo_name=${repo_url##*/}
+repo_name=${repo_name%%.git}
 
 # Argo CD config.
-ARGOCD_NAMESPACE=argocd
-ARGOCD_ADMIN=admin
-ARGOCD_PWD=P@szw0rd
-ARGOCD_APP_PATH=clusters/k3s/guestbook
+argocd_namespace=argocd
+argocd_admin=admin
+argocd_pwd=${ARGOCD_PWD}
+argocd_app_path=clusters/k3s/guestbook
 
 # Get path to current script. Use below syntax rather than SCRIPTPATH=`pwd` 
 # for proper handling of edge cases like spaces and symbolic links.
-SCRIPT_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-LOCAL_PARENT_DIR=${SCRIPT_PATH%%${REPO_NAME}*}
-LOCAL_REPO_ROOT=${LOCAL_PARENT_DIR}/${REPO_NAME}
+#script_path="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+#local_parent_dir=${script_path%%${repo_name}*}
+#local_repo_root=${local_parent_dir}/${repo_name}
 
 # K3s kubeconfig context required when configuring ArgoCD.
 kubectl config get-contexts -o name
@@ -36,57 +35,54 @@ do
     sleep 20
     
     # Test if there are containers still not ready
-    READY_STATUS=$(kubectl -n ${ARGOCD_NAMESPACE} get pods -o jsonpath='{.items[*].status.containerStatuses[?(@.ready==false)].ready}' )
+    ready_status=$(kubectl -n ${argocd_namespace} get pods -o jsonpath='{.items[*].status.containerStatuses[?(@.ready==false)].ready}' )
 
     # Get container status objects, convert to array of objects (jq -s .)
-    CONTAINER_STATUS=$(kubectl -n ${ARGOCD_NAMESPACE} get pods -o jsonpath='{.items[*].status.containerStatuses[]}' | jq -s .)
-    echo ${CONTAINER_STATUS} | jq -r  '["READY", "CONTAINER NAME"], ["-----", "----------------------"], (.[] | [.ready, .name]) | @tsv'
+    container_status=$(kubectl -n ${argocd_namespace} get pods -o jsonpath='{.items[*].status.containerStatuses[]}' | jq -s .)
+    echo ${container_status} | jq -r  '["READY", "CONTAINER NAME"], ["-----", "----------------------"], (.[] | [.ready, .name]) | @tsv'
 
     # Exit loop if all containers are ready ("control statement form").
-    [[ ! -z ${READY_STATUS} ]] || break
+    [[ ! -z ${ready_status} ]] || break
 done
 
 # Give some extra time for everything to stabilize.
 sleep 10
 echo ""
-echo "Resources in ${ARGOCD_NAMESPACE} namespace:"
+echo "Resources in ${argocd_namespace} namespace:"
 echo ""
-kubectl -n ${ARGOCD_NAMESPACE} get all
+kubectl -n ${argocd_namespace} get all
 
 # Retrieve random password generated during ArgoCD installation.
 echo ""
 echo "Initial Argo CD password:"
 echo ""
-ARGOCD_AUTO_PWD=$(kubectl -n ${ARGOCD_NAMESPACE} get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
-echo ${ARGOCD_AUTO_PWD}
+argocd_auto_pwd=$(kubectl -n ${argocd_namespace} get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+echo ${argocd_auto_pwd}
 
 # Reset password.  Ignore error msg "FATA[0030] rpc error: code = Unauthenticated desc = Invalid username or password".
 export ARGOCD_OPTS='--port-forward-namespace argocd'
-argocd login ${SERVER} --password ${ARGOCD_AUTO_PWD} --username ${ARGOCD_ADMIN} --insecure
+argocd login ${server} --password ${argocd_auto_pwd} --username ${argocd_admin} --insecure
 
 echo ""
 echo "Changing Argo CD password ..."
 echo ""
 sleep 5
-argocd account update-password --current-password ${ARGOCD_AUTO_PWD} --new-password ${ARGOCD_PWD} --insecure
-
-# Allow direct external access (no port-forwarding required).  MUST INSTALL LOADBALANCER RESOURCE!!!  NodePort will not work in Azure!!!
-#kubectl patch svc/${ARGOCD_SERVER_SVC_NAME} -n ${ARGOCD_NAMESPACE} -p '{"spec": {"type": "LoadBalancer"}}'
+argocd account update-password --current-password ${argocd_auto_pwd} --new-password ${argocd_pwd} --insecure
 
 # Install sample application.  New login required since credentials changed.
-argocd login ${SERVER} --password ${ARGOCD_PWD}  --username ${ARGOCD_ADMIN} --insecure
+argocd login ${server} --password ${argocd_pwd}  --username ${argocd_admin} --insecure
 
 echo ""
 echo "Changing creating guestbook sample app ..."
 echo ""
 sleep 5
-argocd app create guestbook --repo ${REPO_URL} --path ${ARGOCD_APP_PATH} --dest-server https://kubernetes.default.svc --dest-namespace default
+argocd app create guestbook --repo ${repo_url} --path ${argocd_app_path} --dest-server https://kubernetes.default.svc --dest-namespace default
 
 # Connect GitHub repo.
 echo ""
-echo "Connecting GitHub repo ${REPO_URL} ..."
+echo "Connecting GitHub repo ${repo_url} ..."
 echo ""
-argocd repo add ${REPO_URL}
+argocd repo add ${repo_url}
 
 # Add AKS cluster to ArgoCD
 echo ""
@@ -94,13 +90,5 @@ echo "Adding AKS cluster ..."
 echo ""
 argocd cluster add demo-aks
 
-# Configure port forwarding.
-#ARGOCD_SERVER_SVC_NAME=$(kubectl get svc -n ${ARGOCD_NAMESPACE} -l app.kubernetes.io/name=argocd-server --output=jsonpath="{.items[*].metadata.name}")
-#kubectl port-forward svc/${ARGOCD_SERVER_SVC_NAME} -n ${ARGOCD_NAMESPACE} 8080:443 
-
-# Open a browser and navigate to http://localhost:8080 and logon on using the new password:
-#
-# Username: admin
-# Password: <new password>
-#
-# When done, type ctrl-C to terminate port-forwarding.
+# Allow direct external access (no port-forwarding required).  MUST INSTALL LOADBALANCER RESOURCE!!!  NodePort will not work in Azure!!!
+#kubectl patch svc/${ARGOCD_SERVER_SVC_NAME} -n ${ARGOCD_NAMESPACE} -p '{"spec": {"type": "LoadBalancer"}}'
