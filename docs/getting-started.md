@@ -137,7 +137,7 @@ Wait until the workflow has terminated successfully.
 - Open the workflow logs and drill down into the `Create IoT Hub Infrastructure` step
 - Scroll down the logs and look for the `outputs:` key.
 - Copy the `fqdn` value.  The FQDN should look similar to `demo-y4sz7dkvnweq4.westeurope.cloudapp.azure.com`.
-- Open a bash shell and set the follwoing environment variables:
+- Open a bash shell and set the following environment variables:
   ```
   $ cd <your_local_repository_root>/scripts
   $ export K3S_HOST=<Copied FQDN of K3s host>
