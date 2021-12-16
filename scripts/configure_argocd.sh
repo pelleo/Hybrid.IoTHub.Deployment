@@ -15,12 +15,6 @@ argocd_admin=admin
 argocd_pwd=${ARGOCD_PWD}
 argocd_app_path=clusters/k3s/guestbook
 
-# Get path to current script. Use below syntax rather than SCRIPTPATH=`pwd` 
-# for proper handling of edge cases like spaces and symbolic links.
-#script_path="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-#local_parent_dir=${script_path%%${repo_name}*}
-#local_repo_root=${local_parent_dir}/${repo_name}
-
 # K3s kubeconfig context required when configuring ArgoCD.
 kubectl config get-contexts -o name
 kubectl config use-context default
