@@ -47,11 +47,9 @@ param vmDeployment string
 param dpsDeployment string
 
 @description('URI of the cloud init script used by Bicep deployment script.  Support is currently limited to public repos only')
-//param  cloudInitScriptUri string = 'https://raw.githubusercontent.com/pelleo/Hybrid.IoTHub.Deployment/main/deployment/bicep/modules/create_cloud_init_input_string_bicep.sh'
 param  cloudInitScriptUri string
 
 @description('Public SSH key used by VMs and VMSS')
-//param sshRSAPublicKey string = 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCsjYzxGD3DuHdin5WShA4/GMF53+0QVjCsV9dJgXrt2INF5T8LX+Gu7tFXHcKOhqkoRzqNC+jYGdEkUFqNmKtZZ0S/DflUVt+DvM7jukY/++f57UZdw1mWDtxxCK5CYg5tOzAJQC7h9YhUxaXUOTJ/uFQvm5628sIR3Id27qarV07oi56gJyD6/6AVBQWsthB8Qwif6KQdHHzH0ZW1AF5W1HVg0OGgFBsiFLQx6uQGCCQGSiyjPsM6s0UqlTvbiXbrZ0LHj+DGQp6leeZghblOw4O5jYWfIBgO1+ioVToc0U8TRuQCqerueLDH9NZxObRBpA53NTUfKf3auOgOob7l pelleo@PELLEOPC'
 param sshRSAPublicKey string
 
 @description('DNS label prefix used by VMs and AKS resources')
@@ -85,7 +83,7 @@ param vmStorageAccountNamePrefix string = 'onpremstore'
 
 // Fix version and correct time format later
 param tags object = {
-    owner: 'pelleo@microsoft.com'
+    owner: 'user@contoso.com'
     project: 'Hybrid.IoTHub'
     version:  '1.0'
     timestamp: utcNow()
