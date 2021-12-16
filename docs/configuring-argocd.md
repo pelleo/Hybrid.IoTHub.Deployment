@@ -15,7 +15,19 @@ Main steps:
   ```
   $ ./configure_argocd.sh
   ```
-  The script will periodically check that status of all Argo CD containers to ensure that their status is `Ready` before attempting to configure Argo CD.  Ignore the error message `"FATA[0030] rpc error: code = Unauthenticated desc = Invalid username or password"`.
+  The script will periodically check that status of all Argo CD containers to ensure that their status is `Ready` before attempting to configure Argo CD.  Ignore the error message `"FATA[0030] rpc error: code = Unauthenticated desc = Invalid username or password"` and the port-forwarding error message about broken pipe.  
+
+Upon successful termination you should see output similar to
+```
+<output removed>
+
+Adding AKS cluster ...
+
+INFO[0000] ServiceAccount "argocd-manager" created in namespace "kube-system"
+INFO[0000] ClusterRole "argocd-manager-role" created
+INFO[0000] ClusterRoleBinding "argocd-manager-role-binding" created
+Cluster 'https://demo-ew5f7zh25sedu-75aa13c3.hcp.westeurope.azmk8s.io:443' added
+```
 
 **Note:**  Editing `configure_argocd.sh` is needed only the first time the GitHub workflow is executed.  As long as the K3s resource group ID remains the same, the FQDN will not change.  This remark applies even to the case where the resource groups are deleted completely.
 
