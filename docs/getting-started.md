@@ -108,20 +108,16 @@ echo \'$(cat ~/repos/Hybrid.IoTHub.Deployment/local/.ssh/id_rsa.pub)\'
 If you cloned the sample to a different location, make sure to use the proper path for `<your_local_repository_root>`
 
 To create the secrets, select `Settings` from the horizontal GitHub menu and then `Secrets`.  In turn, create:
-- `Name: ` `AZURE_CREDENTIALS`
-- `Value:` Paste in the saved copy of `${sdk_auth}`
-
-- `Name: ` `AKS_CLIENT_ID`          
-- `Value:` Paste in the saved copy of `${client_id}`
-
-- `Name: ` `AKS_CLIENT_SECRET`      
-- `Value:` Paste in the saved copy of `${client_secret}`
-
-- `Name: ` `SSH_RSA_PUBLIC_KEY`     
-- `Value:` Paste in the contents of `<your_local_repository_root>/local/.ssh/id_rsa.pub`   
-
-- `Name: ` `CLOUD_INIT_SCRIPT_URI`  
-- `Value:` `https://raw.githubusercontent.com/<your_username>/Hybrid.IoTHub.Deployment/main/deployment/bicep/modules/create_cloud_init_input_string_bicep.sh`
+- Name: `AZURE_CREDENTIALS`
+  - Value: Paste in the saved copy of `${sdk_auth}`
+- Name: `AKS_CLIENT_ID`          
+  - Value: Paste in the saved copy of `${client_id}`
+- Name: `AKS_CLIENT_SECRET`      
+  - Value: Paste in the saved copy of `${client_secret}`
+- Name: `SSH_RSA_PUBLIC_KEY`     
+  - Value: Paste in the contents of `<your_local_repository_root>/local/.ssh/id_rsa.pub`   
+- Name: `CLOUD_INIT_SCRIPT_URI`  
+  - Value: `https://raw.githubusercontent.com/<your_username>/Hybrid.IoTHub.Deployment/main/deployment/bicep/modules/create_cloud_init_input_string_bicep.sh`
 
 Be sure to replace `<your_username>` and `<your_local_repository_root>` with the proper values.  The URI must point to the cloud-init script file.
 
