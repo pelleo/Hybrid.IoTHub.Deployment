@@ -45,6 +45,9 @@ To be able to communicate with your GitHub repository you need to create a [pers
 
 Open a bash client and clone the forked repository to your local workstation:
 ```
+# Navigate to home directory.
+$ cd
+
 # Create a directory in which you want to create local copy of your forked repo.
 $ mkdir -p repos
 $ cd repos
@@ -67,7 +70,7 @@ client_secret=$(echo ${sdk_auth} | jq -r '.clientSecret')
 echo ${client_id}
 echo ${client_secret}
 ```
-**Note:** Do not close this terminal window, since the shell variables will be needed when configuring GitHub screts.
+**Note:** Do not close this terminal window, since the shell variables will be needed when configuring GitHub secrets.
 
 # Create SSH key pair
 We will generate an SSH key pair specifically for logging in to the AKS and K3s host VMs in Azure via SSH. Navigate to the `scripts` directory.  Run
@@ -89,7 +92,7 @@ If not already logged in to GitHub, do so now and navigate to the recently forke
 Before actually creating the GitHub secrets, make sure that you have the requisite information available by copying the output of the following commands:
 ```
 # Get value for AZURE_CREDENTIALS. Be sure to collect entire JSON object.
-echo ${sdk_auth} 
+echo ${sdk_auth} | jq
 
 # Get value for AKS_CLIENT_ID
 echo ${client_id}
@@ -104,9 +107,6 @@ echo \'$(cat ~/repos/Hybrid.IoTHub.Deployment/local/.ssh/id_rsa.pub)\'
 ```
 If you cloned the sample to a different location, make sure to use the proper path for `<your_local_repository_root>`
 
-**Note:** DO NOT forget the surrounding single quotes (`'`) when copying the public SSH key.  Failure to do so will invariably lead SSH login errors.
-
-
 To create the secrets, select `Settings` from the horizontal GitHub menu and then `Secrets`.  In turn, create:
 - Name: `AZURE_CREDENTIALS`      Value: Paste in the saved copy of `${sdk_auth}`
 - Name: `AKS_CLIENT_ID`          Value: Paste in the saved copy of `${client_id}`
@@ -115,6 +115,8 @@ To create the secrets, select `Settings` from the horizontal GitHub menu and the
 - Name: `CLOUD_INIT_SCRIPT_URI`  Value: `https://raw.githubusercontent.com/<your_username>/Hybrid.IoTHub.Deployment/main/deployment/bicep/modules/create_cloud_init_input_string_bicep.sh`
 
 Be sure to replace `<your_username>` with your actual GitHub username and `<your_local_repository_root>` with the proper vaues.  The URI must point to the cloud-init script file.
+
+**Note:** DO NOT forget the surrounding single quotes (`'`) when pasting the public SSH key.  Failure to do so will invariably lead to SSH login errors.
 
 # Execute GitHub actions workflow
 Select `Actions` from the menu at the top of the page and highlight `IoTHub Infrastructure Deployment` to launch the workflow.  Wait until the workflow terminates.  

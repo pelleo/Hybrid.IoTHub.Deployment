@@ -4,7 +4,7 @@ Before configuring Argo CD, please be sure to have carried out all necessary ste
 # Configure Argo CD
 Main steps:
 
-- Navigate to the `${REPO_ROOT}/scripts` directory and open `configure_argocd.sh` in a text editor
+- Navigate to `<your_local_repository_root>/scripts` and open `configure_argocd.sh` in a text editor
 - Set the following variables:
   ```
   SERVER=<Saved FQDN of K3s host>
