@@ -82,13 +82,25 @@ jobs:
                            dpsDeployment=$DPS_DEPLOYMENT \
                            cloudInitScriptUri=${{ secrets.CLOUD_INIT_SCRIPT_URI }} \
                            sshRSAPublicKey=${{ secrets.SSH_RSA_PUBLIC_KEY }}
-
+            
+            echo
+            echo Bicep output:
+            echo
             az deployment sub show \
               --name AKS_IoT_K3S_deploy \
-              --query properties.outputs > deployment-output.json
+              --query properties.outputs > output/deployment-output.txt
 
-            cat deployment-output.json
+            cat output/deployment-output.txt
 
+      # Save Bicep output for later reference
+      - name: Save Bicep output
+        uses: actions/upload-artifact@v2
+        with:
+          name: bicep-output
+          path: |
+            output
+            !output/**/*.md
+            !.gitignore
         #env:
         #  LOCATION: westeurope
         #  RESOURCE_GROUP_NAME: rg-aks-demo
