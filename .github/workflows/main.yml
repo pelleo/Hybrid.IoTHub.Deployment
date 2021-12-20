@@ -92,7 +92,7 @@ jobs:
 
             az deployment sub show \
               --name AKS_IoT_K3S_deploy \
-              --query properties.outputs >> deployment-output.json
+              --query properties.outputs > deployment-output.json
 
             cat deployment-output.json
 
