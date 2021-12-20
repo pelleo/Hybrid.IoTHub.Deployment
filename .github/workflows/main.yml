@@ -119,19 +119,37 @@ jobs:
           mkdir -p local
           mkdir -p local/.ssh
           chmod 700 local/.ssh
-          echo ${SSH_RSA_PRIVATE_KEY} > local/.ssh/id_rsa
-          echo ${SSH_RSA_PUBLIC_KEY} > local/.ssh/id_rsa.pub
-          chmod 600 local/.ssh/id_rsa
-          chmod 644 local/.ssh/id_rsa.pub
+          echo ${SSH_RSA_PRIVATE_KEY} > ./local/.ssh/id_rsa
+          echo ${SSH_RSA_PUBLIC_KEY} > l./ocal/.ssh/id_rsa.pub
+          chmod 600 ./local/.ssh/id_rsa
+          chmod 644 ./local/.ssh/id_rsa.pub
+          echo
+          echo List files in current directory
+          ls -al 
+          echo
+          echo List files in ./local/.ssh
+          ls -al ./local/.ssh
         env:
           SSH_RSA_PRIVATE_KEY: ${{ secrets.SSH_RSA_PRIVATE_KEY }}
           SSH_RSA_PUBLIC_KEY: ${{ secrets.SSH_RSA_PUBLIC_KEY }}
+
+      - name: 'Login via Azure CLI'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Download K3s kubeconfig
         run: |
           mkdir -p ${HOME}/.kube
           export KUBECONFIG_DIR=${HOME}/.kube
-          export K3S_HOST=$(cat deployment-output.txt | jq -r '.fqdn')
+          #export K3S_HOST=$(cat deployment-output.txt | jq -r '.fqdn.value')
+          echo
+          echo Current working directory
+          pwd
+          echo
+          echo Files in current directory
+          ls -al
+
           #export K3S_HOST=demo-y4sz7dkvnweq4.westeurope.cloudapp.azure.com
           echo
           echo Home directory:
@@ -140,16 +158,11 @@ jobs:
           echo KUBECONFIG_DIR:
           echo ${KUBECONFIG_DIR}
           echo
-          echo K3S_HOST:
-          echo ${K3S_HOST}
-          echo
-          echo Private SSH key:
-          cat local/.ssh/id_rsa
-          echo
-          echo Public SSH key:
-          cat local/.ssh/id_rsa.pub
-
-      - name: 'Login via Azure CLI'
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          #echo K3S_HOST:
+          #echo ${K3S_HOST}
+          #echo
+          #echo Private SSH key:
+          #cat local/.ssh/id_rsa
+          #echo
+          #echo Public SSH key:
+          #cat local/.ssh/id_rsa.pub
