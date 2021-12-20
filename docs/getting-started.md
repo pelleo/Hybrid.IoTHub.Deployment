@@ -125,21 +125,6 @@ Be sure to replace `<your_username>` and `<your_local_repository_root>` with the
 
 **Note:** DO NOT forget the surrounding single quotes (`'`) when pasting the public SSH key.  Failure to do so will invariably lead to SSH login errors.
 
-# First-time setup of GitHub Actions workflow
-First-time configuration of Git Actions:
-- Copy the contents of `Hybrid.IoTHub.Deployment/.github/workflows/main.yml` to the clipboard.  Save the copy.
-- Delete `Hybrid.IoTHub.Deployment/.github/workflows/main.yml`.  It will be recreated as part of the first-time workflow setup
-- Select `Settings` from the menu at the top of the page and then `Actions`
-  - Check `Allow all actions` and then `Save`
-- Select `Actions` from the menu at the top of the page and then `New workflow`
-  - Follow the `set up a workflow yourself` link.  This will bring up a workflow template `.gitignore/workflows/main.yml`
-- Remove the boiler plate code and paste the previously copied contents into the `<> Edit new file` pane
-- Commit the changes directly to `main`
-
-At this point you should have a fully functional Git Actions pipeline.  The remaining environment variables can be left at their default values; they are used to control the behavior of the bicep templates that build the K8s infrastructure and supporting resources.
-
-If needed, synchronize your local repository with the origin.
-
 # Execute GitHub Actions workflow
 Select `Actions` from the menu at the top of the page and highlight `IoTHub Infrastructure Deployment` to launch the workflow.  Wait until the workflow terminates.  
 

@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iothubgateway-e2e-test
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: iothubgateway-e2e-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: iothubgateway-e2e-test
+  template:
+    metadata:
+      labels:
+        app: iothubgateway-e2e-test
+    spec:
+      containers:
+      - name: mosquitto
+        image: {{ .Values.images.mosquitto }}
+        volumeMounts:
+          - name: mosquitto-config
+            mountPath: /mosquitto/config/mosquitto.conf
+            subPath: mosquitto.conf
+        ports:
+        - containerPort: 1883
+      - name: iothubgateway
+        image: {{ .Values.images.iothubgateway }}
+        command: ["./IoTHubGateway.Service"]
+        args: ["--deviceconnectionstring={{ .Values.iothubgateway.deviceConnectionString }}", "--mqttclientconnectionstring={{ .Values.iothubgateway.mqttClientConnectionString }}", "--deviceid={{ .Values.iothubgateway.deviceId }}"]
+      - name: mqttpublisher
+        image: {{ .Values.images.mqttpublisher }}
+        command: ["./IoTHubGateway.Tools.MqttPublisher"]
+      - name: simulator
+        image: {{ .Values.images.simulator }}
+        command: ["./opcplc"]
+        args: ["--pn=50000", "--autoaccept", "--alm"]
+      - name: opc-publisher
+        image: {{ .Values.images.publisher }}
+        command: ["./Microsoft.Azure.IIoT.Modules.OpcUa.Publisher"]
+        args: ["--aa", "--mm=PubSub", "--pf=/mnt/azure/pn.json", "--dc={{ .Values.iothubgateway.device2ConnectionString }}"]
+        volumeMounts:
+          - name: azure
+            mountPath: /mnt/azure
+      volumes:
+        - name: mosquitto-config
+          configMap:
+            name: mosquitto-config
+        - name: azure
+          azureFile:
+            secretName: azure-file-share
+            shareName: aks-volume
+            readOnly: false

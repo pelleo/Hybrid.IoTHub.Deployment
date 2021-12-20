@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ihg-configmap
+  namespace: {{ .Values.namespace }}
+data:
+  storageAccountKey: {{ .Values.storageAccount.key }}

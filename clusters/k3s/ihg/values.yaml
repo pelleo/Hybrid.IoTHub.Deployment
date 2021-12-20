@@ -1,0 +1,19 @@
+iothubgateway:
+  mqttClientConnectionString:
+  deviceConnectionString:
+  deviceId: dev100
+  device2ConnectionString:
+  device2Id: dev200
+
+storageAccount:
+  key: 
+  name:
+  
+images:
+  mosquitto: eclipse-mosquitto:2.0
+  iothubgateway: 
+  mqttpublisher:
+  simulator: mcr.microsoft.com/iotedge/opc-plc:latest
+  publisher: mcr.microsoft.com/iotedge/opc-publisher:latest
+
+namespace: iothubgateway
