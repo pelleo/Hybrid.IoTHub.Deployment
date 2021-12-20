@@ -29,7 +29,6 @@ jobs:
       VM_DEPLOYMENT: yes
       DPS_DEPLOYMENT: no
       FILE_SHARE_TYPE: SMB
-      REPO_ROOT: $GITHUB_WORKSPACE
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -48,9 +47,6 @@ jobs:
           echo Workspace location:
           echo ${RUNNER_WORKSPACE}
           echo
-          echo Repository root:
-          echo ${REPO_ROOT}
-          echo
           echo User context:
           whoami
           echo
@@ -59,9 +55,6 @@ jobs:
           echo
           echo Environment variables:
           env
-          echo
-          echo Argo CD CLI:
-          which argocd
         
       - name: 'Login via Azure CLI'
         uses: azure/login@v1
