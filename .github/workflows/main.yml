@@ -120,11 +120,12 @@ jobs:
           mkdir -p local/.ssh
           chmod 700 local/.ssh
           echo ${SSH_RSA_PRIVATE_KEY} > ./local/.ssh/id_rsa
-          echo ${SSH_RSA_PUBLIC_KEY} > l./ocal/.ssh/id_rsa.pub
+          echo ${SSH_RSA_PUBLIC_KEY} > ./local/.ssh/id_rsa.pub
           chmod 600 ./local/.ssh/id_rsa
           chmod 644 ./local/.ssh/id_rsa.pub
           echo
           echo List files in current directory
+          pwd
           ls -al 
           echo
           echo List files in ./local/.ssh
