@@ -33,7 +33,8 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
       # Print some basic information about the runners shell
       - name: Show configuration of runners shell
@@ -83,13 +84,13 @@ jobs:
                            cloudInitScriptUri=${{ secrets.CLOUD_INIT_SCRIPT_URI }} \
                            sshRSAPublicKey=${{ secrets.SSH_RSA_PUBLIC_KEY }}
             
+            az deployment sub show \
+              --name AKS_IoT_K3S_deploy \
+              --query properties.outputs > deployment-output.txt
+            
             echo
             echo Bicep output:
             echo
-            az deployment sub show \
-              --name AKS_IoT_K3S_deploy \
-              --query properties.outputs > output/deployment-output.txt
-
             cat output/deployment-output.txt
 
       # Save Bicep output for later reference
@@ -97,18 +98,59 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: bicep-output
-          path: |
-            output
-            !output/**/*.md
-            !.gitignore
-        #env:
-        #  LOCATION: westeurope
-        #  RESOURCE_GROUP_NAME: rg-aks-demo
-        #  ONPREM_RESOURCE_GROUP_NAME: rg-k3s-demo
-        #  ENVIRONMENT_TYPE: dev
-        #  AKS_DEPLOYMENT: yes
-        #  IOT_DEPLOYMENT: yes
-        #  VM_DEPLOYMENT: yes
-        #  DPS_DEPLOYMENT: no
-        #  FILE_SHARE_TYPE: SMB
-        #  REPO_ROOT: $GITHUB_WORKSPACE
+          path: deployment-output.txt
+
+
+  # The "configure" job sets up Argo CD for initial use
+  configure:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Download bicep artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: bicep-output
+          path: deployment-output.txt
+
+      - name: Configure SSH login on K3s
+        run: |
+          mkdir -p local
+          mkdir -p local/.ssh
+          chmod 700 local/.ssh
+          echo ${SSH_RSA_PRIVATE_KEY} > local/.ssh/id_rsa
+          echo ${SSH_RSA_PUBLIC_KEY} > local/.ssh/id_rsa.pub
+          chmod 600 local/.ssh/id_rsa
+          chmod 644 local/.ssh/id_rsa.pub
+        env:
+          SSH_RSA_PRIVATE_KEY: ${{ secrets.SSH_RSA_PRIVATE_KEY }}
+          SSH_RSA_PUBLIC_KEY: ${{ secrets.SSH_RSA_PUBLIC_KEY }}
+
+      - name: Download K3s kubeconfig
+        run: |
+          mkdir -p ${HOME}/.kube
+          export KUBECONFIG_DIR=${HOME}/.kube
+          export K3S_HOST=$(cat deployment-output.txt | jq -r '.fqdn')
+          #export K3S_HOST=demo-y4sz7dkvnweq4.westeurope.cloudapp.azure.com
+          echo
+          echo Home directory:
+          ls -al ${HOME}
+          echo
+          echo KUBECONFIG_DIR:
+          echo KUBECONFIG_DIR
+          echo
+          echo K3S_HOST:
+          echo ${K3S_HOST}
+          echo
+          echo Private SSH key:
+          cat local/.ssh/id_rsa
+          echo
+          echo Public SSH key:
+          cat local/.ssh/id_rsa.pub
+
+      - name: 'Login via Azure CLI'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
