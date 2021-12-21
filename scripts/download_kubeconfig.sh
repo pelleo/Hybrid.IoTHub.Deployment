@@ -19,7 +19,8 @@ repo_name=Hybrid.IoTHub.Deployment
 # for proper handling of edge cases like spaces and symbolic links.
 script_path="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 local_parent_dir=${script_path%%${repo_name}*}
-local_repo_root=${local_parent_dir}/${repo_name}
+#local_repo_root=${local_parent_dir}/${repo_name}
+local_repo_root=/github/workspace    # Temp fix for Git actions workflow
 
 # File path of kubeconfig on remote K3s host
 file_path=/home/${admin_username}/k3s-config
