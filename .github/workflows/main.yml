@@ -208,7 +208,7 @@ jobs:
             # Download kubeconfig from K3s host and from AKS (requires SSH).
             #./scripts/download_kubeconfig.sh
 
-            ssh -i ${local_repo_root}/local/.ssh/id_rsa -o "StrictHostKeyChecking no" adminuser@${K3S_HOST} ls -al
+            ssh -i ${GITHUB_WORKSPACE}/local/.ssh/id_rsa -o "StrictHostKeyChecking no" adminuser@${K3S_HOST} ls -al
 
             # Verify download.
             echo /root/.kube:
