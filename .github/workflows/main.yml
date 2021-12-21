@@ -190,6 +190,7 @@ jobs:
             # Copy kubefig back to GITHUB_WORKSPACE for easy access when creating artifacts.
             cp ${KUBECONFIG_DIR}/config ${GITHUB_WORKSPACE}/local/kubeconfig
             chmod 644 ${GITHUB_WORKSPACE}/local/kubeconfig
+            chmod 644 ${GITHUB_WORKSPACE}/local/node-token
         env:
           SSH_RSA_PRIVATE_KEY: ${{ secrets.SSH_RSA_PRIVATE_KEY }}
 
