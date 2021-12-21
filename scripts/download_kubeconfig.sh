@@ -65,8 +65,11 @@ scp -q -i ${local_repo_root}/local/.ssh/id_rsa -o "StrictHostKeyChecking no" ${a
 # WSL fix. Must copy the new kubeconfig to default WSL location.
 echo ""
 echo "Merging K3s demo cluster kubeconfig ..."
-mv ${kubeconfig_dir}/config ${kubeconfig_dir}/config${RANDOM}.bak           # Backup existing kubeconfig
-cp ${local_repo_root}/local/k3s-config ${kubeconfig_dir}/config
+file_path=${kubeconfig_dir}/config
+if [[ -f ${file_path} ]]; then
+    mv ${file_path} ${kubeconfig_dir}/config${RANDOM}.bak           # Backup existing kubeconfig
+fi 
+cp ${local_repo_root}/local/k3s-config ${file_path}
 
 # Merge AKS cluster kubeconfig into default config store.
 echo "Merging AKS demo cluster kubeconfig ..."

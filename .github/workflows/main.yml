@@ -162,9 +162,11 @@ jobs:
             ls -al ${HOME}/.ssh
 
             # Configure K8s pre-reqs.
-            mkdir -p ${HOME}/.kube
             export KUBECONFIG_DIR=${HOME}/.kube
             export K3S_HOST=$(cat deployment-output.txt | jq -r '.fqdn.value')
+            mkdir -p ${KUBECONFIG_DIR}
+
+
 
             # Confirm settings.
             echo KUBECONFIG_DIR:
@@ -173,6 +175,8 @@ jobs:
             echo K3S_HOST:
             echo ${K3S_HOST}
             echo
+            echo /root:
+            ls -al /root
         
             # Download kubeconfig from K3s host and from AKS (requires SSH).
             ./scripts/download_kubeconfig.sh
@@ -180,7 +184,7 @@ jobs:
             #ssh -i ${GITHUB_WORKSPACE}/local/.ssh/id_rsa -o "StrictHostKeyChecking no" adminuser@${K3S_HOST} ls -al
 
             # Verify download.
-            echo /root/.kube:
+            echo ${KUBECONFIG_DIR}:
             ls -al ${KUBECONFIG_DIR}
             echo
             echo Downloaded kubeconfig:
