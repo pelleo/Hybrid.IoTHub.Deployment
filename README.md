@@ -22,3 +22,5 @@ Documentation for the Hybrid.IoTHub.Deployment project can be found at:
 - [Overview](docs/overview.md)
 - [Getting started](docs/getting-started.md)
 - [Configuring Argo CD](docs/configuring-argocd.md)
+
+[![IotHub Infrastructure Deployment](https://github.com/pelleo/Hybrid.IoTHub.Deployment/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/pelleo/Hybrid.IoTHub.Deployment/actions/workflows/main.yml)
