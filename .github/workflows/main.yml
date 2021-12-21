@@ -87,11 +87,6 @@ jobs:
             az deployment sub show \
               --name AKS_IoT_K3S_deploy \
               --query properties.outputs > deployment-output.txt
-            
-            echo
-            echo Bicep output:
-            echo
-            cat deployment-output.txt
 
       # Save Bicep output for later reference
       - name: Save Bicep output
@@ -138,31 +133,30 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Download K3s kubeconfig
-        run: |
-          mkdir -p ${HOME}/.kube
-          export KUBECONFIG_DIR=${HOME}/.kube
-          export K3S_HOST=$(cat deployment-output.txt | jq -r '.fqdn.value')
-          echo
-          echo Current working directory
-          pwd
-          echo
-          echo Files in current directory
-          ls -al
+      - name: Download K3s and AKS kubeconfig
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            # Arrange pre-reqs.
+            mkdir -p ${HOME}/.kube
+            export KUBECONFIG_DIR=${HOME}/.kube
+            export K3S_HOST=$(cat deployment-output.txt | jq -r '.fqdn.value')
 
-          #export K3S_HOST=demo-y4sz7dkvnweq4.westeurope.cloudapp.azure.com
-          echo
-          echo Home directory:
-          ls -al ${HOME}
-          echo
-          echo KUBECONFIG_DIR:
-          echo ${KUBECONFIG_DIR}
-          echo
-          echo K3S_HOST:
-          echo ${K3S_HOST}
-          echo
-          echo Private SSH key:
-          cat local/.ssh/id_rsa
-          echo
-          echo Public SSH key:
-          cat local/.ssh/id_rsa.pub
+            # Confirm settings.
+            echo KUBECONFIG_DIR:
+            echo ${KUBECONFIG_DIR}
+            echo
+            echo K3S_HOST:
+            echo ${K3S_HOST}
+            echo
+
+            # Download kubeconfig from K3s host and from AKS.
+            ./scripts/download_kubeconfig.sh
+
+            # Verify download
+            echo /home/runner/.kube:
+            ls -al ${KUBECONFIG_DIR}
+            echo
+            echo Donwloaded kubeconfig:
+            echo
+            cat ${KUBECONFIG_DIR}/config
