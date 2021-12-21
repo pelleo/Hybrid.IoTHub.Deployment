@@ -159,13 +159,34 @@ jobs:
             echo ${K3S_HOST}
             echo
 
+            echo Current directory:
+            pwd
+            echo
+            echo Directory listing:
+            ls -al
+            echo
+            echo Workspace location:
+            echo ${RUNNER_WORKSPACE}
+            echo
+            echo User context:
+            whoami
+            echo
+            echo Home directory:
+            echo ${HOME}
+            echo
+            echo Disks:
+            df
+            echo
+            echo Environment variables:
+            env
+        
             # Download kubeconfig from K3s host and from AKS (requires SSH).
-            ./scripts/download_kubeconfig.sh
+            #./scripts/download_kubeconfig.sh
 
             # Verify download.
             echo /home/runner/.kube:
             ls -al ${KUBECONFIG_DIR}
-            echo
-            echo Downloaded kubeconfig:
-            echo
-            cat ${KUBECONFIG_DIR}/config
+            #echo
+            #echo Downloaded kubeconfig:
+            #echo
+            #cat ${KUBECONFIG_DIR}/config
