@@ -167,7 +167,7 @@ jobs:
             echo
             echo Environment variables:
             env
-            
+
             # Create necessary SSH infrastructure.
             mkdir -p local
             mkdir -p local/.ssh
@@ -206,7 +206,7 @@ jobs:
             echo
         
             # Download kubeconfig from K3s host and from AKS (requires SSH).
-            #./scripts/download_kubeconfig.sh
+            ./scripts/download_kubeconfig.sh
 
             # Verify download.
             echo /root/.kube:
