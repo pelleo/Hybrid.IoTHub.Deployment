@@ -186,6 +186,10 @@ jobs:
             echo Downloaded kubeconfig:
             echo
             cat ${KUBECONFIG_DIR}/config
+
+            # Copy kubefig back to GITHUB_WORKSPACE for easy access when creating artifacts.
+            cp ${KUBECONFIG_DIR}/config ${GITHUB_WORKSPACE}/local/kubeconfig
+            chmod 644 ${GITHUB_WORKSPACE}/local/kubeconfig
         env:
           SSH_RSA_PRIVATE_KEY: ${{ secrets.SSH_RSA_PRIVATE_KEY }}
 
@@ -194,7 +198,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: kubeconfig
-          path: /root/.kube/config
+          path: ./local/config
 
       # Save node token
       - name: Save node token
