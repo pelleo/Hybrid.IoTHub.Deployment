@@ -198,7 +198,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: kubeconfig
-          path: ./local/config
+          path: ./local/kubeconfig
 
       # Save node token
       - name: Save node token
