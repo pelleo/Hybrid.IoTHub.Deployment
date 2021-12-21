@@ -1,4 +1,6 @@
 # Hybrid.IoTHub.Deployment
+[![IotHub Infrastructure Deployment](https://github.com/pelleo/Hybrid.IoTHub.Deployment/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/pelleo/Hybrid.IoTHub.Deployment/actions/workflows/main.yml)
+
 This repository contains the necessary code to bring up two K8s environments that can be used to simulate a typical deployment scenario for IoTHub OPC Publisher devtest cycles.  The first environment is used to simulate a "permanent" production cluster:
 
 - Ubuntu Linux virtual machine hosting an "onpremises" K3s cluster that runs [Argo CD](https://argo-cd.readthedocs.io/en/stable/) to support GitOps workflow
@@ -22,5 +24,3 @@ Documentation for the Hybrid.IoTHub.Deployment project can be found at:
 - [Overview](docs/overview.md)
 - [Getting started](docs/getting-started.md)
 - [Configuring Argo CD](docs/configuring-argocd.md)
-
-[![IotHub Infrastructure Deployment](https://github.com/pelleo/Hybrid.IoTHub.Deployment/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/pelleo/Hybrid.IoTHub.Deployment/actions/workflows/main.yml)
