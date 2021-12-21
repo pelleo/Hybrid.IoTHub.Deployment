@@ -166,8 +166,6 @@ jobs:
             export K3S_HOST=$(cat deployment-output.txt | jq -r '.fqdn.value')
             mkdir -p ${KUBECONFIG_DIR}
 
-
-
             # Confirm settings.
             echo KUBECONFIG_DIR:
             echo ${KUBECONFIG_DIR}
@@ -181,8 +179,6 @@ jobs:
             # Download kubeconfig from K3s host and from AKS (requires SSH).
             ./scripts/download_kubeconfig.sh
 
-            #ssh -i ${GITHUB_WORKSPACE}/local/.ssh/id_rsa -o "StrictHostKeyChecking no" adminuser@${K3S_HOST} ls -al
-
             # Verify download.
             echo ${KUBECONFIG_DIR}:
             ls -al ${KUBECONFIG_DIR}
@@ -192,3 +188,17 @@ jobs:
             cat ${KUBECONFIG_DIR}/config
         env:
           SSH_RSA_PRIVATE_KEY: ${{ secrets.SSH_RSA_PRIVATE_KEY }}
+
+      # Save kubeconfig
+      - name: Save kubeconfig
+        uses: actions/upload-artifact@v2
+        with:
+          name: kubeconfig
+          path: /root/.kube/config
+
+      # Save node token
+      - name: Save node token
+        uses: actions/upload-artifact@v2
+        with:
+          name: node-token
+          path: ./local/node-token
