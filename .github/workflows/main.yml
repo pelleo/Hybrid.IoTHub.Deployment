@@ -108,34 +108,34 @@ jobs:
         with:
           name: bicep-output
 
-      - name: Configure build agents for SSH login on K3s
-        run: |
-          # Create necessary SSH infrastructure.
-          mkdir -p local
-          mkdir -p local/.ssh
-          chmod 700 local/.ssh
-          echo ${SSH_RSA_PRIVATE_KEY} > ./local/.ssh/id_rsa
-          echo ${SSH_RSA_PUBLIC_KEY} > ./local/.ssh/id_rsa.pub
-          chmod 600 ./local/.ssh/id_rsa
-          chmod 644 ./local/.ssh/id_rsa.pub
-          mkdir -p ${HOME}/.ssh
-          touch ${HOME}/.ssh/known_hosts
-          chmod 600 ${HOME}/.ssh/known_hosts
+      #- name: Configure build agents for SSH login on K3s
+      #  run: |
+      #    # Create necessary SSH infrastructure.
+      #    mkdir -p local
+      #    mkdir -p local/.ssh
+      #    chmod 700 local/.ssh
+      #    echo ${SSH_RSA_PRIVATE_KEY} > ./local/.ssh/id_rsa
+      #    echo ${SSH_RSA_PUBLIC_KEY} > ./local/.ssh/id_rsa.pub
+      #    chmod 600 ./local/.ssh/id_rsa
+      #    chmod 644 ./local/.ssh/id_rsa.pub
+      #    mkdir -p ${HOME}/.ssh
+      #    touch ${HOME}/.ssh/known_hosts
+      #    chmod 600 ${HOME}/.ssh/known_hosts
 
-          # Print out SSH configuration.
-          echo
-          echo List files in current directory
-          pwd
-          ls -al 
-          echo
-          echo List files in ./local/.ssh
-          ls -al ./local/.ssh
-          echo
-          echo ${HOME}/.ssh:
-          ls -al ${HOME}/.ssh
-        env:
-          SSH_RSA_PRIVATE_KEY: ${{ secrets.SSH_RSA_PRIVATE_KEY }}
-          SSH_RSA_PUBLIC_KEY: ${{ secrets.SSH_RSA_PUBLIC_KEY }}
+      #    # Print out SSH configuration.
+      #    echo
+      #    echo List files in current directory
+      #    pwd
+      #    ls -al 
+      #    echo
+      #    echo List files in ./local/.ssh
+      #    ls -al ./local/.ssh
+      #    echo
+      #    echo ${HOME}/.ssh:
+      #    ls -al ${HOME}/.ssh
+      #  env:
+      #    SSH_RSA_PRIVATE_KEY: ${{ secrets.SSH_RSA_PRIVATE_KEY }}
+      #    SSH_RSA_PUBLIC_KEY: ${{ secrets.SSH_RSA_PUBLIC_KEY }}
 
       - name: 'Login via Azure CLI'
         uses: azure/login@v1
@@ -146,27 +146,15 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            # Arrange pre-reqs.
-            mkdir -p ${HOME}/.kube
-            export KUBECONFIG_DIR=${HOME}/.kube
-            export K3S_HOST=$(cat deployment-output.txt | jq -r '.fqdn.value')
-
-            # Confirm settings.
-            echo KUBECONFIG_DIR:
-            echo ${KUBECONFIG_DIR}
-            echo
-            echo K3S_HOST:
-            echo ${K3S_HOST}
-            echo
-
+            # Print out general info about Az CLI shell.
             echo Current directory:
             pwd
             echo
+            echo GITHUB_WORKSPACE:
+            echo ${GITHUB_WORKSPACE}
+            echo
             echo Directory listing:
             ls -al
-            echo
-            echo Workspace location:
-            echo ${RUNNER_WORKSPACE}
             echo
             echo User context:
             whoami
@@ -179,14 +167,54 @@ jobs:
             echo
             echo Environment variables:
             env
+            
+            # Create necessary SSH infrastructure.
+            mkdir -p local
+            mkdir -p local/.ssh
+            chmod 700 local/.ssh
+            echo ${SSH_RSA_PRIVATE_KEY} > ./local/.ssh/id_rsa
+            echo ${SSH_RSA_PUBLIC_KEY} > ./local/.ssh/id_rsa.pub
+            chmod 600 ./local/.ssh/id_rsa
+            chmod 644 ./local/.ssh/id_rsa.pub
+            mkdir -p ${HOME}/.ssh
+            touch ${HOME}/.ssh/known_hosts
+            chmod 600 ${HOME}/.ssh/known_hosts
+
+            # Print out SSH configuration.
+            echo
+            echo List files in current directory
+            pwd
+            ls -al 
+            echo
+            echo List files in ./local/.ssh
+            ls -al ./local/.ssh
+            echo
+            echo ${HOME}/.ssh:
+            ls -al ${HOME}/.ssh
+
+            # Configure K8s pre-reqs.
+            mkdir -p ${HOME}/.kube
+            export KUBECONFIG_DIR=${HOME}/.kube
+            export K3S_HOST=$(cat deployment-output.txt | jq -r '.fqdn.value')
+
+            # Confirm settings.
+            echo KUBECONFIG_DIR:
+            echo ${KUBECONFIG_DIR}
+            echo
+            echo K3S_HOST:
+            echo ${K3S_HOST}
+            echo
         
             # Download kubeconfig from K3s host and from AKS (requires SSH).
             #./scripts/download_kubeconfig.sh
 
             # Verify download.
-            echo /home/runner/.kube:
+            echo /root/.kube:
             ls -al ${KUBECONFIG_DIR}
             #echo
             #echo Downloaded kubeconfig:
             #echo
             #cat ${KUBECONFIG_DIR}/config
+        env:
+          SSH_RSA_PRIVATE_KEY: ${{ secrets.SSH_RSA_PRIVATE_KEY }}
+          SSH_RSA_PUBLIC_KEY: ${{ secrets.SSH_RSA_PUBLIC_KEY }}
