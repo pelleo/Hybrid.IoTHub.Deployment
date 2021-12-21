@@ -112,7 +112,6 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: bicep-output
-          path: deployment-output.txt
 
       - name: Configure SSH login on K3s
         run: |
@@ -143,7 +142,7 @@ jobs:
         run: |
           mkdir -p ${HOME}/.kube
           export KUBECONFIG_DIR=${HOME}/.kube
-          #export K3S_HOST=$(cat deployment-output.txt | jq -r '.fqdn.value')
+          export K3S_HOST=$(cat deployment-output.txt | jq -r '.fqdn.value')
           echo
           echo Current working directory
           pwd
@@ -159,11 +158,11 @@ jobs:
           echo KUBECONFIG_DIR:
           echo ${KUBECONFIG_DIR}
           echo
-          #echo K3S_HOST:
-          #echo ${K3S_HOST}
-          #echo
-          #echo Private SSH key:
-          #cat local/.ssh/id_rsa
-          #echo
-          #echo Public SSH key:
-          #cat local/.ssh/id_rsa.pub
+          echo K3S_HOST:
+          echo ${K3S_HOST}
+          echo
+          echo Private SSH key:
+          cat local/.ssh/id_rsa
+          echo
+          echo Public SSH key:
+          cat local/.ssh/id_rsa.pub
