@@ -17,5 +17,6 @@ chmod 700 ${LOCAL_REPO_ROOT}/local/.ssh
 # Generate SSH key pair to be used for accessing K3s host.
 ssh-keygen -t rsa -b 2048 -f ${LOCAL_REPO_ROOT}/local/.ssh/id_rsa -C "k8s_host_key"
 
-# Convert private key into a format that is suitable for GitHub secrets.
-awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' ${LOCAL_REPO_ROOT}/local/.ssh/id_rsa > ${LOCAL_REPO_ROOT}/local/.ssh/id_rsa_guthub_secret
+# Store private key in format that allows it to be genereted in standard
+# multiline format when retrieved from GitGub secrets (or any env var).
+awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' ${LOCAL_REPO_ROOT}/local/.ssh/id_rsa > ${LOCAL_REPO_ROOT}/local/.ssh/id_rsa_github_secret

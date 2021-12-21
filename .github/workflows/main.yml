@@ -144,9 +144,7 @@ jobs:
             mkdir -p local/.ssh
             chmod 700 local/.ssh
             echo -e ${SSH_RSA_PRIVATE_KEY} > ./local/.ssh/id_rsa
-            echo ${SSH_RSA_PUBLIC_KEY} > ./local/.ssh/id_rsa.pub
             chmod 600 ./local/.ssh/id_rsa
-            chmod 644 ./local/.ssh/id_rsa.pub
             mkdir -p ${HOME}/.ssh
             touch ${HOME}/.ssh/known_hosts
             chmod 600 ${HOME}/.ssh/known_hosts
@@ -177,17 +175,16 @@ jobs:
             echo
         
             # Download kubeconfig from K3s host and from AKS (requires SSH).
-            #./scripts/download_kubeconfig.sh
+            ./scripts/download_kubeconfig.sh
 
-            ssh -i ${GITHUB_WORKSPACE}/local/.ssh/id_rsa -o "StrictHostKeyChecking no" adminuser@${K3S_HOST} ls -al
+            #ssh -i ${GITHUB_WORKSPACE}/local/.ssh/id_rsa -o "StrictHostKeyChecking no" adminuser@${K3S_HOST} ls -al
 
             # Verify download.
             echo /root/.kube:
             ls -al ${KUBECONFIG_DIR}
-            #echo
-            #echo Downloaded kubeconfig:
-            #echo
-            #cat ${KUBECONFIG_DIR}/config
+            echo
+            echo Downloaded kubeconfig:
+            echo
+            cat ${KUBECONFIG_DIR}/config
         env:
           SSH_RSA_PRIVATE_KEY: ${{ secrets.SSH_RSA_PRIVATE_KEY }}
-          SSH_RSA_PUBLIC_KEY: ${{ secrets.SSH_RSA_PUBLIC_KEY }}
