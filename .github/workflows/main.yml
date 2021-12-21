@@ -108,8 +108,9 @@ jobs:
         with:
           name: bicep-output
 
-      - name: Configure SSH login on K3s
+      - name: Configure build agents for SSH login on K3s
         run: |
+          # Create necessary SSH infrastructure.
           mkdir -p local
           mkdir -p local/.ssh
           chmod 700 local/.ssh
@@ -117,6 +118,11 @@ jobs:
           echo ${SSH_RSA_PUBLIC_KEY} > ./local/.ssh/id_rsa.pub
           chmod 600 ./local/.ssh/id_rsa
           chmod 644 ./local/.ssh/id_rsa.pub
+          mkdir -p ${HOME}/.ssh
+          touch ${HOME}/.ssh/known_hosts
+          chmod 600 ${HOME}/.ssh/known_hosts
+
+          # Print out SSH configuration.
           echo
           echo List files in current directory
           pwd
@@ -124,6 +130,9 @@ jobs:
           echo
           echo List files in ./local/.ssh
           ls -al ./local/.ssh
+          echo
+          echo ${HOME}/.ssh:
+          ls -al ${HOME}/.ssh
         env:
           SSH_RSA_PRIVATE_KEY: ${{ secrets.SSH_RSA_PRIVATE_KEY }}
           SSH_RSA_PUBLIC_KEY: ${{ secrets.SSH_RSA_PUBLIC_KEY }}
@@ -150,7 +159,7 @@ jobs:
             echo ${K3S_HOST}
             echo
 
-            # Download kubeconfig from K3s host and from AKS.
+            # Download kubeconfig from K3s host and from AKS (requires SSH).
             ./scripts/download_kubeconfig.sh
 
             # Verify download.
