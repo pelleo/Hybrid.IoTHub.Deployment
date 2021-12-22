@@ -54,7 +54,7 @@ jobs:
             echo GITHUB_WORKSPACE:
             echo ${GITHUB_WORKSPACE}
             echo
-            echo Directory listing:
+            echo ${GITHUB_WORKSPACE}:
             ls -al
             echo
             echo User context:
@@ -124,7 +124,7 @@ jobs:
       - name: Configure SSH
         run: |
           echo
-          echo Printing general info about Az CLI shell ...
+          echo Printing general info about runner shell ...
           echo
           echo Current directory:
           pwd
@@ -132,7 +132,7 @@ jobs:
           echo GITHUB_WORKSPACE:
           echo ${GITHUB_WORKSPACE}
           echo
-          echo Current directory listing:
+          echo ${GITHUB_WORKSPACE}:
           ls -al
           echo
           echo User context:
@@ -141,7 +141,7 @@ jobs:
           echo Home directory:
           echo ${HOME}
           echo
-          echo Home directory listing:
+          echo ${HOME}:
           ls -al ${HOME}
           echo
           echo Disks:
@@ -224,12 +224,15 @@ jobs:
           echo Downloading latest kubectl release ...
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           
+          echo
           echo Downloading kubectl checksum file ...
           curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
 
-          echo ${GITHUB_WORKSPACE} directory listing:
+          echo
+          echo ${GITHUB_WORKSPACE}:
           ls -al 
 
+          echo
           echo Validating kubectl against checksum file ...
           echo "$(<kubectl.sha256) kubectl" | sha256sum -c
 
@@ -240,9 +243,11 @@ jobs:
           kubectl version --client
 
           export KUBECONFIG_DIR=${HOME}/.kube
-          echo ${KUBECONFIG_DIR} directory listing:
+          echo
+          echo ${KUBECONFIG_DIR}:
           ls -al ${KUBECONFIG_DIR}
 
+          echo
           echo Verifying K3s cluster ...
           kubectl config use-context default
           kubectl cluster-info
