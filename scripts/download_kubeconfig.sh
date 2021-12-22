@@ -18,14 +18,14 @@ repo_name=Hybrid.IoTHub.Deployment
 # Get path to current script. Use below syntax rather than SCRIPTPATH=`pwd` 
 # for proper handling of edge cases like spaces and symbolic links.  Use
 # GITHUB_WORKSPACE variable to determin if script is run locally or via
-# Git Actions
+# Git Actions. 
+script_path="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+local_parent_dir=${script_path%%${repo_name}*}
 if [[ -z ${GITHUB_WORKSPACE+x} ]]; then 
-    echo yes
-    script_path="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-    local_parent_dir=${script_path%%${repo_name}*}
     local_repo_root=${local_parent_dir}/${repo_name}
 else
-    local_repo_root=/github/workspace
+    #local_repo_root=/github/workspace
+    local_repo_root=${GITHUB_WORKSPACE} 
 fi
 
 # File path of kubeconfig on remote K3s host
