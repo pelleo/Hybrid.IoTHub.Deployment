@@ -228,10 +228,26 @@ jobs:
             echo Home directory:
             echo ${HOME}
             echo
+            echo Directories:
+            ls -al ${HOME}
+            echo
             echo Disks:
             df
             echo
             echo Environment variables:
             env
-            kubectl version --client
 
+            echo Downloading latest kubectl release ...
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+            
+            echo Downloading kubectl checksum file ...
+            curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+
+            echo Validating kubectl against checksum file ...
+            echo "$(<kubectl.sha256) kubectl" | sha256sum --check
+
+            echo Installing kubectl binary ...
+            install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+            echo Verifying installed version ...
+            kubectl version --client
