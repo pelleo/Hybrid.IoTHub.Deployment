@@ -207,3 +207,31 @@ jobs:
         with:
           name: node-token
           path: ./local/node-token
+
+      - name: Configure Argo CD
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            # Print out general info about Az CLI shell.
+            echo Current directory:
+            pwd
+            echo
+            echo GITHUB_WORKSPACE:
+            echo ${GITHUB_WORKSPACE}
+            echo
+            echo Directory listing:
+            ls -al
+            echo
+            echo User context:
+            whoami
+            echo
+            echo Home directory:
+            echo ${HOME}
+            echo
+            echo Disks:
+            df
+            echo
+            echo Environment variables:
+            env
+            kubectl version --client
+
