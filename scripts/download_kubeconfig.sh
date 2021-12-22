@@ -20,14 +20,8 @@ repo_name=Hybrid.IoTHub.Deployment
 script_path="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 local_parent_dir=${script_path%%${repo_name}*}
 local_repo_root=${local_parent_dir}/${repo_name}
-#if [[ -z ${GITHUB_WORKSPACE+x} ]]; then 
-#    local_repo_root=${local_parent_dir}/${repo_name}
-#else
-#    #local_repo_root=/github/workspace
-#    local_repo_root=${GITHUB_WORKSPACE} 
-#fi
 
-# local_repo_root == GITHUB_WORKSPACE when using Git Actions.
+# local_repo_root == GITHUB_WORKSPACE when using Git Actions ("control statement form").
 [[ -z ${GITHUB_WORKSPACE+x} ]] || local_repo_root=${GITHUB_WORKSPACE} 
 
 # File path of kubeconfig on remote K3s host
@@ -52,7 +46,7 @@ do
         ${admin_username}@${server} \
         [[ -f ${file_path} ]] && echo yes || echo no;)
 
-    # Exit loop if file exists ("control statement form").
+    # Exit loop if file exists.
     [[ "${file_exists}" == "yes" ]] && break
 done
 
@@ -74,9 +68,7 @@ scp -q -i ${local_repo_root}/local/.ssh/id_rsa -o "StrictHostKeyChecking no" ${a
 echo ""
 echo "Merging K3s demo cluster kubeconfig ..."
 file_path=${kubeconfig_dir}/config
-if [[ -f ${file_path} ]]; then
-    mv ${file_path} ${kubeconfig_dir}/config${RANDOM}.bak           # Backup existing kubeconfig
-fi 
+[[ -f ${file_path} ]] && mv ${file_path} ${kubeconfig_dir}/config${RANDOM}.bak 
 cp ${local_repo_root}/local/k3s-config ${file_path}
 
 # Merge AKS cluster kubeconfig into default config store.

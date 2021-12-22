@@ -35,27 +35,6 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      # Print some basic information about the runners shell
-      - name: Show configuration of runners shell
-        run: |
-          echo Current directory:
-          pwd
-          echo
-          echo Directory listing:
-          ls -al
-          echo
-          echo Workspace location:
-          echo ${RUNNER_WORKSPACE}
-          echo
-          echo User context:
-          whoami
-          echo
-          echo Disks:
-          df
-          echo
-          echo Environment variables:
-          env
         
       - name: Login via Azure CLI
         uses: azure/login@v1
@@ -67,6 +46,29 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
+            echo Printing general info about the Az CLI shell ...
+            echo Current directory:
+            pwd
+            echo
+            echo GITHUB_WORKSPACE:
+            echo ${GITHUB_WORKSPACE}
+            echo
+            echo Directory listing:
+            ls -al
+            echo
+            echo User context:
+            whoami
+            echo
+            echo Home directory:
+            echo ${HOME}
+            echo
+            echo Disks:
+            df
+            echo
+            echo Environment variables:
+            env
+
+            echo Creating Azure resources ...
             az deployment sub create \
               --name AKS_IoT_K3S_deploy \
               --location $LOCATION \
@@ -84,6 +86,7 @@ jobs:
                            cloudInitScriptUri=${{ secrets.CLOUD_INIT_SCRIPT_URI }} \
                            sshRSAPublicKey=${{ secrets.SSH_RSA_PUBLIC_KEY }}
             
+            echo Saving Bicep deployment outputs ...
             az deployment sub show \
               --name AKS_IoT_K3S_deploy \
               --query properties.outputs > deployment-output.txt
@@ -115,100 +118,7 @@ jobs:
 
       - name: Download K3s and AKS kubeconfig
         run: |
-          # Print out general info about Az CLI shell.
-          echo Current directory:
-          pwd
-          echo
-          echo GITHUB_WORKSPACE:
-          echo ${GITHUB_WORKSPACE}
-          echo
-          echo Directory listing:
-          ls -al
-          echo
-          echo User context:
-          whoami
-          echo
-          echo Home directory:
-          echo ${HOME}
-          echo
-          echo Disks:
-          df
-          echo
-          echo Environment variables:
-          env
-
-          # Create necessary SSH infrastructure.
-          mkdir -p local
-          mkdir -p local/.ssh
-          chmod 700 local/.ssh
-          echo -e ${SSH_RSA_PRIVATE_KEY} > ./local/.ssh/id_rsa
-          chmod 600 ./local/.ssh/id_rsa
-          mkdir -p ${HOME}/.ssh
-          touch ${HOME}/.ssh/known_hosts
-          chmod 600 ${HOME}/.ssh/known_hosts
-
-          # Print out SSH configuration.
-          echo
-          echo List files in current directory
-          pwd
-          ls -al 
-          echo
-          echo List files in ./local/.ssh
-          ls -al ./local/.ssh
-          echo
-          echo ${HOME}/.ssh:
-          ls -al ${HOME}/.ssh
-
-          # Configure K8s pre-reqs.
-          export KUBECONFIG_DIR=${HOME}/.kube
-          export K3S_HOST=$(cat deployment-output.txt | jq -r '.fqdn.value')
-          mkdir -p ${KUBECONFIG_DIR}
-
-          # Confirm settings.
-          echo KUBECONFIG_DIR:
-          echo ${KUBECONFIG_DIR}
-          echo
-          echo K3S_HOST:
-          echo ${K3S_HOST}
-          echo
-          #echo /root:
-          #ls -al /root
-      
-          # Download kubeconfig from K3s host and from AKS (requires SSH).
-          ./scripts/download_kubeconfig.sh
-
-          # Verify download.
-          echo ${KUBECONFIG_DIR}:
-          ls -al ${KUBECONFIG_DIR}
-          echo
-          echo Downloaded kubeconfig:
-          echo
-          cat ${KUBECONFIG_DIR}/config
-
-          # Copy kubefig back to GITHUB_WORKSPACE for easy access when creating artifacts.
-          cp ${KUBECONFIG_DIR}/config ${GITHUB_WORKSPACE}/local/kubeconfig
-          chmod 644 ${GITHUB_WORKSPACE}/local/kubeconfig
-          chmod 644 ${GITHUB_WORKSPACE}/local/node-token
-        env:
-          SSH_RSA_PRIVATE_KEY: ${{ secrets.SSH_RSA_PRIVATE_KEY }}
-
-      # Save kubeconfig
-      - name: Save kubeconfig
-        uses: actions/upload-artifact@v2
-        with:
-          name: kubeconfig
-          path: ./local/kubeconfig
-
-      # Save node token
-      - name: Save node token
-        uses: actions/upload-artifact@v2
-        with:
-          name: node-token
-          path: ./local/node-token
-
-      - name: Configure Argo CD
-        run: | 
-          # Print out general info about Az CLI shell.
+          echo Printing general info about Az CLI shell ...
           echo Current directory:
           pwd
           echo
@@ -233,6 +143,77 @@ jobs:
           echo Environment variables:
           env
 
+          echo Creating SSH infrastructure ...
+          mkdir -p local
+          mkdir -p local/.ssh
+          chmod 700 local/.ssh
+          echo -e ${SSH_RSA_PRIVATE_KEY} > ./local/.ssh/id_rsa
+          chmod 600 ./local/.ssh/id_rsa
+          mkdir -p ${HOME}/.ssh
+          touch ${HOME}/.ssh/known_hosts
+          chmod 600 ${HOME}/.ssh/known_hosts
+
+          echo Printing out SSH configuration ...
+          echo
+          echo List files in current directory
+          pwd
+          ls -al 
+          echo
+          echo List files in ./local/.ssh
+          ls -al ./local/.ssh
+          echo
+          echo ${HOME}/.ssh:
+          ls -al ${HOME}/.ssh
+
+          echo Configuring K3s prerequisites ...
+          export KUBECONFIG_DIR=${HOME}/.kube
+          export K3S_HOST=$(cat deployment-output.txt | jq -r '.fqdn.value')
+          mkdir -p ${KUBECONFIG_DIR}
+
+          echo Confirming settings ...
+          echo KUBECONFIG_DIR:
+          echo ${KUBECONFIG_DIR}
+          echo
+          echo K3S_HOST:
+          echo ${K3S_HOST}
+          echo
+          echo ${HOME}:
+          ls -al ${HOME}
+      
+          # Download kubeconfig from K3s host and from AKS (requires SSH).
+          ./scripts/download_kubeconfig.sh
+
+          # Verify download.
+          echo ${KUBECONFIG_DIR}:
+          ls -al ${KUBECONFIG_DIR}
+          echo
+          echo Downloaded kubeconfig:
+          echo
+          cat ${KUBECONFIG_DIR}/config
+
+          echo Copying kubeconfig back to GITHUB_WORKSPACE for easy access when creating artifacts ...
+          cp ${KUBECONFIG_DIR}/config ${GITHUB_WORKSPACE}/local/kubeconfig
+          chmod 644 ${GITHUB_WORKSPACE}/local/kubeconfig
+          chmod 644 ${GITHUB_WORKSPACE}/local/node-token
+        env:
+          SSH_RSA_PRIVATE_KEY: ${{ secrets.SSH_RSA_PRIVATE_KEY }}
+
+      # Save kubeconfig
+      - name: Save kubeconfig
+        uses: actions/upload-artifact@v2
+        with:
+          name: kubeconfig
+          path: ./local/kubeconfig
+
+      # Save node token
+      - name: Save node token
+        uses: actions/upload-artifact@v2
+        with:
+          name: node-token
+          path: ./local/node-token
+
+      - name: Configure Argo CD
+        run: | 
           echo Downloading latest kubectl release ...
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           
@@ -250,3 +231,7 @@ jobs:
 
           echo Verifying installed version ...
           kubectl version --client
+
+          export KUBECONFIG_DIR=${HOME}/.kube
+          echo Listing files in ${KUBECONFIG_DIR} ...
+          ls -al ${KUBECONFIG_DIR}
