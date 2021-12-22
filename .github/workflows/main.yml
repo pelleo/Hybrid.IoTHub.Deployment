@@ -114,83 +114,81 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Download K3s and AKS kubeconfig
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            # Print out general info about Az CLI shell.
-            echo Current directory:
-            pwd
-            echo
-            echo GITHUB_WORKSPACE:
-            echo ${GITHUB_WORKSPACE}
-            echo
-            echo Directory listing:
-            ls -al
-            echo
-            echo User context:
-            whoami
-            echo
-            echo Home directory:
-            echo ${HOME}
-            echo
-            echo Disks:
-            df
-            echo
-            echo Environment variables:
-            env
+        run: |
+          # Print out general info about Az CLI shell.
+          echo Current directory:
+          pwd
+          echo
+          echo GITHUB_WORKSPACE:
+          echo ${GITHUB_WORKSPACE}
+          echo
+          echo Directory listing:
+          ls -al
+          echo
+          echo User context:
+          whoami
+          echo
+          echo Home directory:
+          echo ${HOME}
+          echo
+          echo Disks:
+          df
+          echo
+          echo Environment variables:
+          env
 
-            # Create necessary SSH infrastructure.
-            mkdir -p local
-            mkdir -p local/.ssh
-            chmod 700 local/.ssh
-            echo -e ${SSH_RSA_PRIVATE_KEY} > ./local/.ssh/id_rsa
-            chmod 600 ./local/.ssh/id_rsa
-            mkdir -p ${HOME}/.ssh
-            touch ${HOME}/.ssh/known_hosts
-            chmod 600 ${HOME}/.ssh/known_hosts
+          # Create necessary SSH infrastructure.
+          mkdir -p local
+          mkdir -p local/.ssh
+          chmod 700 local/.ssh
+          echo -e ${SSH_RSA_PRIVATE_KEY} > ./local/.ssh/id_rsa
+          chmod 600 ./local/.ssh/id_rsa
+          mkdir -p ${HOME}/.ssh
+          touch ${HOME}/.ssh/known_hosts
+          chmod 600 ${HOME}/.ssh/known_hosts
 
-            # Print out SSH configuration.
-            echo
-            echo List files in current directory
-            pwd
-            ls -al 
-            echo
-            echo List files in ./local/.ssh
-            ls -al ./local/.ssh
-            echo
-            echo ${HOME}/.ssh:
-            ls -al ${HOME}/.ssh
+          # Print out SSH configuration.
+          echo
+          echo List files in current directory
+          pwd
+          ls -al 
+          echo
+          echo List files in ./local/.ssh
+          ls -al ./local/.ssh
+          echo
+          echo ${HOME}/.ssh:
+          ls -al ${HOME}/.ssh
 
-            # Configure K8s pre-reqs.
-            export KUBECONFIG_DIR=${HOME}/.kube
-            export K3S_HOST=$(cat deployment-output.txt | jq -r '.fqdn.value')
-            mkdir -p ${KUBECONFIG_DIR}
+          # Configure K8s pre-reqs.
+          export KUBECONFIG_DIR=${HOME}/.kube
+          export K3S_HOST=$(cat deployment-output.txt | jq -r '.fqdn.value')
+          mkdir -p ${KUBECONFIG_DIR}
 
-            # Confirm settings.
-            echo KUBECONFIG_DIR:
-            echo ${KUBECONFIG_DIR}
-            echo
-            echo K3S_HOST:
-            echo ${K3S_HOST}
-            echo
-            echo /root:
-            ls -al /root
-        
-            # Download kubeconfig from K3s host and from AKS (requires SSH).
-            ./scripts/download_kubeconfig.sh
+          # Confirm settings.
+          echo KUBECONFIG_DIR:
+          echo ${KUBECONFIG_DIR}
+          echo
+          echo K3S_HOST:
+          echo ${K3S_HOST}
+          echo
+          #echo /root:
+          #ls -al /root
+      
+          # Download kubeconfig from K3s host and from AKS (requires SSH).
+          ./scripts/download_kubeconfig.sh
 
-            # Verify download.
-            echo ${KUBECONFIG_DIR}:
-            ls -al ${KUBECONFIG_DIR}
-            echo
-            echo Downloaded kubeconfig:
-            echo
-            cat ${KUBECONFIG_DIR}/config
+          # Verify download.
+          echo ${KUBECONFIG_DIR}:
+          ls -al ${KUBECONFIG_DIR}
+          echo
+          echo Downloaded kubeconfig:
+          echo
+          cat ${KUBECONFIG_DIR}/config
 
-            # Copy kubefig back to GITHUB_WORKSPACE for easy access when creating artifacts.
-            cp ${KUBECONFIG_DIR}/config ${GITHUB_WORKSPACE}/local/kubeconfig
-            chmod 644 ${GITHUB_WORKSPACE}/local/kubeconfig
-            chmod 644 ${GITHUB_WORKSPACE}/local/node-token
+          # Copy kubefig back to GITHUB_WORKSPACE for easy access when creating artifacts.
+          cp ${KUBECONFIG_DIR}/config ${GITHUB_WORKSPACE}/local/kubeconfig
+          chmod 644 ${GITHUB_WORKSPACE}/local/kubeconfig
+          chmod 644 ${GITHUB_WORKSPACE}/local/node-token
         env:
           SSH_RSA_PRIVATE_KEY: ${{ secrets.SSH_RSA_PRIVATE_KEY }}
 
