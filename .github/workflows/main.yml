@@ -41,7 +41,6 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # Create the Azure infrastructure
       - name: Create AKS/K3s/IotHub Infrastructure
         uses: azure/CLI@v1
         with:
@@ -111,12 +110,12 @@ jobs:
         with:
           name: bicep-output
 
-      - name: 'Login via Azure CLI'
+      - name: Login via Azure CLI
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Download K3s and AKS kubeconfig
+      - name: Configure SSH
         run: |
           echo Printing general info about Az CLI shell ...
           echo Current directory:
@@ -164,7 +163,11 @@ jobs:
           echo
           echo ${HOME}/.ssh:
           ls -al ${HOME}/.ssh
+        env:
+          SSH_RSA_PRIVATE_KEY: ${{ secrets.SSH_RSA_PRIVATE_KEY }}
 
+      - name: Download K3s and AKS kubeconfig
+        run: |
           echo Configuring K3s prerequisites ...
           export KUBECONFIG_DIR=${HOME}/.kube
           export K3S_HOST=$(cat deployment-output.txt | jq -r '.fqdn.value')
@@ -195,24 +198,20 @@ jobs:
           cp ${KUBECONFIG_DIR}/config ${GITHUB_WORKSPACE}/local/kubeconfig
           chmod 644 ${GITHUB_WORKSPACE}/local/kubeconfig
           chmod 644 ${GITHUB_WORKSPACE}/local/node-token
-        env:
-          SSH_RSA_PRIVATE_KEY: ${{ secrets.SSH_RSA_PRIVATE_KEY }}
 
-      # Save kubeconfig
       - name: Save kubeconfig
         uses: actions/upload-artifact@v2
         with:
           name: kubeconfig
           path: ./local/kubeconfig
 
-      # Save node token
       - name: Save node token
         uses: actions/upload-artifact@v2
         with:
           name: node-token
           path: ./local/node-token
 
-      - name: Configure Argo CD
+      - name: Install kubectl
         run: | 
           echo Downloading latest kubectl release ...
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
@@ -224,7 +223,7 @@ jobs:
           ls -al 
 
           echo Validating kubectl against checksum file ...
-          #echo "$(<kubectl.sha256) kubectl" | sha256sum -c
+          echo "$(<kubectl.sha256) kubectl" | sha256sum -c
 
           echo Installing kubectl binary ...
           sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
