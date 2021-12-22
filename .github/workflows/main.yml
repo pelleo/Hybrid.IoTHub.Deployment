@@ -209,46 +209,46 @@ jobs:
           path: ./local/node-token
 
       - name: Configure Argo CD
-        run | 
-            # Print out general info about Az CLI shell.
-            echo Current directory:
-            pwd
-            echo
-            echo GITHUB_WORKSPACE:
-            echo ${GITHUB_WORKSPACE}
-            echo
-            echo Directory listing:
-            ls -al
-            echo
-            echo User context:
-            whoami
-            echo
-            echo Home directory:
-            echo ${HOME}
-            echo
-            echo Directories:
-            ls -al ${HOME}
-            echo
-            echo Disks:
-            df
-            echo
-            echo Environment variables:
-            env
+        run: | 
+          # Print out general info about Az CLI shell.
+          echo Current directory:
+          pwd
+          echo
+          echo GITHUB_WORKSPACE:
+          echo ${GITHUB_WORKSPACE}
+          echo
+          echo Directory listing:
+          ls -al
+          echo
+          echo User context:
+          whoami
+          echo
+          echo Home directory:
+          echo ${HOME}
+          echo
+          echo Directories:
+          ls -al ${HOME}
+          echo
+          echo Disks:
+          df
+          echo
+          echo Environment variables:
+          env
 
-            echo Downloading latest kubectl release ...
-            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-            
-            echo Downloading kubectl checksum file ...
-            curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+          echo Downloading latest kubectl release ...
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          
+          echo Downloading kubectl checksum file ...
+          curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
 
-            echo Listing files in ${GITHUB_WORKSPACE} ...
-            ls -al 
+          echo Listing files in ${GITHUB_WORKSPACE} ...
+          ls -al 
 
-            echo Validating kubectl against checksum file ...
-            #echo "$(<kubectl.sha256) kubectl" | sha256sum -c
+          echo Validating kubectl against checksum file ...
+          #echo "$(<kubectl.sha256) kubectl" | sha256sum -c
 
-            echo Installing kubectl binary ...
-            sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+          echo Installing kubectl binary ...
+          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
-            echo Verifying installed version ...
-            kubectl version --client
+          echo Verifying installed version ...
+          kubectl version --client
