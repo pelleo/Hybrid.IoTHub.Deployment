@@ -209,9 +209,7 @@ jobs:
           path: ./local/node-token
 
       - name: Configure Argo CD
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
+        run | 
             # Print out general info about Az CLI shell.
             echo Current directory:
             pwd
@@ -250,7 +248,7 @@ jobs:
             #echo "$(<kubectl.sha256) kubectl" | sha256sum -c
 
             echo Installing kubectl binary ...
-            install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+            sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
             echo Verifying installed version ...
             kubectl version --client
