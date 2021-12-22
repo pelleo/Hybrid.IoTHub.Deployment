@@ -23,9 +23,9 @@ kubectl config use-context default
 n=30
 for (( i=1; i<=n; i++ ))
 do  
-    echo ""
-    echo "Checking container status ${i} times out of ${n} ..."
-    echo ""
+    echo 
+    echo Checking container status ${i} times out of ${n} ...
+    echo 
     sleep 20
     
     # Test if there are containers still not ready
@@ -41,15 +41,15 @@ done
 
 # Give some extra time for everything to stabilize.
 sleep 10
-echo ""
-echo "Resources in ${argocd_namespace} namespace:"
-echo ""
+echo 
+echo Resources in ${argocd_namespace} namespace:
+echo 
 kubectl -n ${argocd_namespace} get all
 
 # Retrieve random password generated during ArgoCD installation.
-echo ""
-echo "Initial Argo CD password:"
-echo ""
+echo 
+echo Initial Argo CD password:
+echo 
 argocd_auto_pwd=$(kubectl -n ${argocd_namespace} get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 echo ${argocd_auto_pwd}
 
@@ -57,31 +57,31 @@ echo ${argocd_auto_pwd}
 export ARGOCD_OPTS='--port-forward-namespace argocd'
 argocd login ${server} --password ${argocd_auto_pwd} --username ${argocd_admin} --insecure
 
-echo ""
-echo "Changing Argo CD password ..."
-echo ""
+echo 
+echo Changing Argo CD password ...
+echo 
 sleep 5
 argocd account update-password --current-password ${argocd_auto_pwd} --new-password ${argocd_pwd} --insecure
 
 # Install sample application.  New login required since credentials changed.
 argocd login ${server} --password ${argocd_pwd}  --username ${argocd_admin} --insecure
 
-echo ""
-echo "Changing creating guestbook sample app ..."
-echo ""
+echo 
+echo Changing creating guestbook sample app ...
+echo 
 sleep 5
 argocd app create guestbook --repo ${repo_url} --path ${argocd_app_path} --dest-server https://kubernetes.default.svc --dest-namespace default
 
 # Connect GitHub repo.
-echo ""
-echo "Connecting GitHub repo ${repo_url} ..."
-echo ""
+echo 
+echo Connecting GitHub repo ${repo_url} ...
+echo 
 argocd repo add ${repo_url}
 
 # Add AKS cluster to ArgoCD
-echo ""
-echo "Adding AKS cluster ..."
-echo ""
+echo 
+echo Adding AKS cluster ...
+echo 
 argocd cluster add demo-aks
 
 # Allow direct external access (no port-forwarding required).  MUST INSTALL LOADBALANCER RESOURCE!!!  NodePort will not work in Azure!!!

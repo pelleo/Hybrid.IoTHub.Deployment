@@ -132,7 +132,7 @@ jobs:
           echo GITHUB_WORKSPACE:
           echo ${GITHUB_WORKSPACE}
           echo
-          echo Directory listing:
+          echo Current directory listing:
           ls -al
           echo
           echo User context:
@@ -141,7 +141,7 @@ jobs:
           echo Home directory:
           echo ${HOME}
           echo
-          echo Directories:
+          echo Home directory listing:
           ls -al ${HOME}
           echo
           echo Disks:
@@ -179,7 +179,6 @@ jobs:
           mkdir -p ${KUBECONFIG_DIR}
 
           echo Verifying kubernetes settings ...
-          echo
           echo KUBECONFIG_DIR:
           echo ${KUBECONFIG_DIR}
           echo
@@ -228,7 +227,7 @@ jobs:
           echo Downloading kubectl checksum file ...
           curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
 
-          echo Listing files in ${GITHUB_WORKSPACE} ...
+          echo ${GITHUB_WORKSPACE} directory listing:
           ls -al 
 
           echo Validating kubectl against checksum file ...
@@ -241,9 +240,15 @@ jobs:
           kubectl version --client
 
           export KUBECONFIG_DIR=${HOME}/.kube
-          echo Listing files in ${KUBECONFIG_DIR} ...
+          echo ${KUBECONFIG_DIR} directory listing:
           ls -al ${KUBECONFIG_DIR}
 
           echo Verifying K3s cluster ...
           kubectl config use-context default
           kubectl cluster-info
+
+      - name: Install Argo CD CLI
+        run: | 
+          echo Installing Argo CD CLI ...
+          sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          sudo chmod +x /usr/local/bin/argocd
