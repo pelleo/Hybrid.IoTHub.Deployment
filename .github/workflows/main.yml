@@ -45,7 +45,9 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
+            echo
             echo Printing general info about the Az CLI shell ...
+            echo
             echo Current directory:
             pwd
             echo
@@ -67,7 +69,9 @@ jobs:
             echo Environment variables:
             env
 
+            echo
             echo Creating Azure resources ...
+            echo
             az deployment sub create \
               --name AKS_IoT_K3S_deploy \
               --location $LOCATION \
@@ -85,7 +89,9 @@ jobs:
                            cloudInitScriptUri=${{ secrets.CLOUD_INIT_SCRIPT_URI }} \
                            sshRSAPublicKey=${{ secrets.SSH_RSA_PUBLIC_KEY }}
             
+            echo
             echo Saving Bicep deployment outputs ...
+            echo
             az deployment sub show \
               --name AKS_IoT_K3S_deploy \
               --query properties.outputs > deployment-output.txt
@@ -117,7 +123,9 @@ jobs:
 
       - name: Configure SSH
         run: |
+          echo
           echo Printing general info about Az CLI shell ...
+          echo
           echo Current directory:
           pwd
           echo
@@ -142,6 +150,7 @@ jobs:
           echo Environment variables:
           env
 
+          echo
           echo Creating SSH infrastructure ...
           mkdir -p local
           mkdir -p local/.ssh
@@ -152,13 +161,8 @@ jobs:
           touch ${HOME}/.ssh/known_hosts
           chmod 600 ${HOME}/.ssh/known_hosts
 
-          echo Printing out SSH configuration ...
-          echo
-          echo List files in current directory
-          pwd
-          ls -al 
-          echo
-          echo List files in ./local/.ssh
+          echo Verifying SSH directories ...
+          echo ./local/.ssh:
           ls -al ./local/.ssh
           echo
           echo ${HOME}/.ssh:
@@ -168,12 +172,14 @@ jobs:
 
       - name: Download K3s and AKS kubeconfig
         run: |
+          echo
           echo Configuring K3s prerequisites ...
           export KUBECONFIG_DIR=${HOME}/.kube
           export K3S_HOST=$(cat deployment-output.txt | jq -r '.fqdn.value')
           mkdir -p ${KUBECONFIG_DIR}
 
-          echo Confirming settings ...
+          echo Verifying kubernetes settings ...
+          echo
           echo KUBECONFIG_DIR:
           echo ${KUBECONFIG_DIR}
           echo
@@ -183,10 +189,12 @@ jobs:
           echo ${HOME}:
           ls -al ${HOME}
       
-          # Download kubeconfig from K3s host and from AKS (requires SSH).
+          echo
+          echo Downloading kubeconfig from K3s host and from AKS ...
           ./scripts/download_kubeconfig.sh
 
-          # Verify download.
+          echo
+          echo Verifying download ...
           echo ${KUBECONFIG_DIR}:
           ls -al ${KUBECONFIG_DIR}
           echo
@@ -194,6 +202,7 @@ jobs:
           echo
           cat ${KUBECONFIG_DIR}/config
 
+          echo
           echo Copying kubeconfig back to GITHUB_WORKSPACE for easy access when creating artifacts ...
           cp ${KUBECONFIG_DIR}/config ${GITHUB_WORKSPACE}/local/kubeconfig
           chmod 644 ${GITHUB_WORKSPACE}/local/kubeconfig
@@ -234,3 +243,7 @@ jobs:
           export KUBECONFIG_DIR=${HOME}/.kube
           echo Listing files in ${KUBECONFIG_DIR} ...
           ls -al ${KUBECONFIG_DIR}
+
+          echo Verifying K3s cluster ...
+          kubectl config use-context default
+          kubectl cluster-info
