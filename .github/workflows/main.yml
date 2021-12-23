@@ -124,6 +124,8 @@ jobs:
       - name: Configure SSH
         run: |
           echo
+          lsb_release -a
+          echo
           echo Printing general info about runner shell ...
           echo
           echo Current directory:
@@ -260,7 +262,10 @@ jobs:
 
       - name: Install sample app and add AKS cluster
         run: |
+          # Ignore non-zero exit from configure_argocd.sh
+          set +e
           echo Configuring Argo CD for first time use ...
+          export K3S_HOST=$(cat deployment-output.txt | jq -r '.fqdn.value')
           ./scripts/configure_argocd.sh
         env:
           ARGOCD_PWD: ${{ secrets.ARGOCD_PWD }}

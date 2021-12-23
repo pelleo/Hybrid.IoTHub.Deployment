@@ -1,5 +1,6 @@
 #/bin/bash
-#set -euo pipefail
+# Ignore non-zero exit from argocd account update-password.
+set +e
 
 # Login information for Azure VM hosting Argo CD service.
 server=${K3S_HOST}
@@ -79,19 +80,19 @@ echo
 echo Creating guestbook sample app ...
 echo 
 sleep 5
-#argocd app create guestbook --repo ${repo_url} --path ${argocd_app_path} --dest-server https://kubernetes.default.svc --dest-namespace default
+argocd app create guestbook --repo ${repo_url} --path ${argocd_app_path} --dest-server https://kubernetes.default.svc --dest-namespace default
 
 # Connect GitHub repo.
 echo 
 echo Connecting GitHub repo ${repo_url} ...
 echo 
-#argocd repo add ${repo_url}
+argocd repo add ${repo_url}
 
 # Add AKS cluster to ArgoCD
 echo 
 echo Adding AKS cluster ...
 echo 
-#argocd cluster add demo-aks
+argocd cluster add demo-aks
 
 # Allow direct external access (no port-forwarding required).  MUST INSTALL LOADBALANCER RESOURCE!!!  NodePort will not work in Azure!!!
 #kubectl patch svc/${ARGOCD_SERVER_SVC_NAME} -n ${ARGOCD_NAMESPACE} -p '{"spec": {"type": "LoadBalancer"}}'
