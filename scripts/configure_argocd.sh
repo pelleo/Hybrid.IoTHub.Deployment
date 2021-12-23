@@ -58,16 +58,16 @@ export ARGOCD_OPTS='--port-forward-namespace argocd'
 argocd login ${server} --password ${argocd_auto_pwd} --username ${argocd_admin} --insecure
 
 echo 
-echo Changing Argo CD password ...
+#echo Changing Argo CD password ...
 echo 
 sleep 5
-argocd account update-password --current-password ${argocd_auto_pwd} --new-password ${argocd_pwd} --insecure
+#argocd account update-password --current-password ${argocd_auto_pwd} --new-password ${argocd_pwd} --insecure
 
 # Install sample application.  New login required since credentials changed.
 argocd login ${server} --password ${argocd_pwd}  --username ${argocd_admin} --insecure
 
 echo 
-echo Changing creating guestbook sample app ...
+echo Creating guestbook sample app ...
 echo 
 sleep 5
 argocd app create guestbook --repo ${repo_url} --path ${argocd_app_path} --dest-server https://kubernetes.default.svc --dest-namespace default

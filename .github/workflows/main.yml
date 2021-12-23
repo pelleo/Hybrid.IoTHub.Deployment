@@ -203,15 +203,15 @@ jobs:
 
           echo
           echo Copying kubeconfig back to GITHUB_WORKSPACE for easy access when creating artifacts ...
-          cp ${KUBECONFIG_DIR}/config ${GITHUB_WORKSPACE}/local/kubeconfig
-          chmod 644 ${GITHUB_WORKSPACE}/local/kubeconfig
+          cp ${KUBECONFIG_DIR}/config ${GITHUB_WORKSPACE}/local/config
+          chmod 644 ${GITHUB_WORKSPACE}/local/config
           chmod 644 ${GITHUB_WORKSPACE}/local/node-token
 
       - name: Save kubeconfig
         uses: actions/upload-artifact@v2
         with:
           name: kubeconfig
-          path: ./local/kubeconfig
+          path: ./local/config
 
       - name: Save node token
         uses: actions/upload-artifact@v2
@@ -257,3 +257,8 @@ jobs:
           echo Installing Argo CD CLI ...
           sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
           sudo chmod +x /usr/local/bin/argocd
+
+      - name: Install sample app and add AKS cluster
+        run: |
+          echo Configuring Argo CD for first time use ...
+          ./scripts/configure_argocd.sh
