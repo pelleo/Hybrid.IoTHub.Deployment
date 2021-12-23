@@ -6,6 +6,7 @@ server=${K3S_HOST}
 
 # Repository information.
 repo_url=${HYBRID_IOTHUB_REPO_URL}
+[[ -z ${repo_url} ]] && repo_url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}
 repo_name=${repo_url##*/}
 repo_name=${repo_name%%.git}
 
@@ -24,7 +25,7 @@ n=30
 for (( i=1; i<=n; i++ ))
 do  
     echo 
-    echo Checking container status ${i} times out of ${n} ...
+    echo Checking Argo CD container status ${i} times out of ${n} ...
     echo 
     sleep 20
     
@@ -55,6 +56,14 @@ echo ${argocd_auto_pwd}
 
 # Reset password.  Ignore error msg "FATA[0030] rpc error: code = Unauthenticated desc = Invalid username or password".
 export ARGOCD_OPTS='--port-forward-namespace argocd'
+
+echo
+echo User context:
+whoami
+
+echo 
+echo ${HOME}/.kube:
+ls -al ${HOME}/.kube
 argocd login ${server} --password ${argocd_auto_pwd} --username ${argocd_admin} --insecure
 
 echo 
@@ -70,19 +79,19 @@ echo
 echo Creating guestbook sample app ...
 echo 
 sleep 5
-argocd app create guestbook --repo ${repo_url} --path ${argocd_app_path} --dest-server https://kubernetes.default.svc --dest-namespace default
+#argocd app create guestbook --repo ${repo_url} --path ${argocd_app_path} --dest-server https://kubernetes.default.svc --dest-namespace default
 
 # Connect GitHub repo.
 echo 
 echo Connecting GitHub repo ${repo_url} ...
 echo 
-argocd repo add ${repo_url}
+#argocd repo add ${repo_url}
 
 # Add AKS cluster to ArgoCD
 echo 
 echo Adding AKS cluster ...
 echo 
-argocd cluster add demo-aks
+#argocd cluster add demo-aks
 
 # Allow direct external access (no port-forwarding required).  MUST INSTALL LOADBALANCER RESOURCE!!!  NodePort will not work in Azure!!!
 #kubectl patch svc/${ARGOCD_SERVER_SVC_NAME} -n ${ARGOCD_NAMESPACE} -p '{"spec": {"type": "LoadBalancer"}}'
