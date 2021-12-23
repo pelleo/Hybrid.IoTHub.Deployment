@@ -23,7 +23,7 @@ local_repo_root=${local_parent_dir}/${repo_name}
 
 # local_repo_root == GITHUB_WORKSPACE when using Git Actions ("control statement form").
 [[ -z ${GITHUB_WORKSPACE+x} ]] || local_repo_root=${GITHUB_WORKSPACE} 
-echo ${local_repo_root}
+
 # File path of kubeconfig on remote K3s host
 file_path=/home/${admin_username}/k3s-config
 
