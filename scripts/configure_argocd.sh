@@ -64,7 +64,7 @@ sleep 5
 #argocd account update-password --current-password ${argocd_auto_pwd} --new-password ${argocd_pwd} --insecure
 
 # Install sample application.  New login required since credentials changed.
-argocd login ${server} --password ${argocd_pwd}  --username ${argocd_admin} --insecure
+#argocd login ${server} --password ${argocd_pwd}  --username ${argocd_admin} --insecure
 
 echo 
 echo Creating guestbook sample app ...

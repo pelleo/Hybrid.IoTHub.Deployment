@@ -262,3 +262,5 @@ jobs:
         run: |
           echo Configuring Argo CD for first time use ...
           ./scripts/configure_argocd.sh
+        env:
+          ARGOCD_PWD: {{ secrets.ARGOCD_PWD }}
