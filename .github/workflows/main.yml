@@ -89,7 +89,7 @@ jobs:
             df
 
             # Overwrite environment variable with locally created keys.
-            export SSH_RSA_PUBLIC_KEY=$(cat ./local/.ssh/id_rsa.pub)
+            #export SSH_RSA_PUBLIC_KEY=$(cat ./local/.ssh/id_rsa.pub)
 
             # Create cloud init script URI.
             export CLOUD_INIT_SCRIPT_URI=https://raw.githubusercontent.com/${GITHUB_ACTOR}/Hybrid.IoTHub.Deployment/main/deployment/bicep/modules/create_cloud_init_input_string_bicep.sh
@@ -201,8 +201,8 @@ jobs:
           mkdir -p local
           mkdir -p local/.ssh
           chmod 700 local/.ssh
-          #echo -e ${SSH_RSA_PRIVATE_KEY} > ./local/.ssh/id_rsa
-          mv ./id_rsa ./local/.ssh/id_rsa
+          echo -e ${SSH_RSA_PRIVATE_KEY} > ./local/.ssh/id_rsa
+          #mv ./id_rsa ./local/.ssh/id_rsa
           chmod 600 ./local/.ssh/id_rsa
           mkdir -p ${HOME}/.ssh
           touch ${HOME}/.ssh/known_hosts
