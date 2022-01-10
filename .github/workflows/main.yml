@@ -110,7 +110,7 @@ jobs:
                            fileShareType=$FILE_SHARE_TYPE \
                            dpsDeployment=$DPS_DEPLOYMENT \
                            cloudInitScriptUri=${{ secrets.CLOUD_INIT_SCRIPT_URI }} \
-                           sshRSAPublicKey=${{ secrets.SSH_RSA_PUBLIC_KEY }}
+                           sshRSAPublicKey=$MY_SSH_RSA_PUBLIC_KEY
             
             echo
             echo Saving Bicep deployment outputs ...
@@ -188,7 +188,8 @@ jobs:
           mkdir -p local
           mkdir -p local/.ssh
           chmod 700 local/.ssh
-          echo -e ${SSH_RSA_PRIVATE_KEY} > ./local/.ssh/id_rsa
+          #echo -e ${SSH_RSA_PRIVATE_KEY} > ./local/.ssh/id_rsa
+          mv ./id_rsa ./local/.ssh/id_rsa
           chmod 600 ./local/.ssh/id_rsa
           mkdir -p ${HOME}/.ssh
           touch ${HOME}/.ssh/known_hosts
