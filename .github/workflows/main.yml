@@ -87,7 +87,7 @@ jobs:
             echo
             echo Disks:
             df
-            export MY_SSH_RSA_PUBLIC_KEY=$(cat ./local/.ssh/id_rsa.pub)
+            export MY_SSH_RSA_PUBLIC_KEY=\'$(cat ./local/.ssh/id_rsa.pub)\'
             echo
             echo Environment variables:
             env
