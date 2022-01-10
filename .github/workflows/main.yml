@@ -46,13 +46,13 @@ jobs:
       - name: Save SSH public key
         uses: actions/upload-artifact@v2
         with:
-          name: id_rsa.pub
+          name: SSH-public-key
           path: ./local/.ssh/id_rsa.pub
 
       - name: Save SSH private key
         uses: actions/upload-artifact@v2
         with:
-          name: id_rsa
+          name: SSH-private-key
           path: ./local/.ssh/id_rsa
 
       - name: Login via Azure CLI
@@ -87,7 +87,9 @@ jobs:
             echo
             echo Disks:
             df
-            export MY_SSH_RSA_PUBLIC_KEY="$(cat ./local/.ssh/id_rsa.pub)"
+
+            # Overwrite environment v ariable with locally created keys.
+            export SSH_RSA_PUBLIC_KEY=$(cat ./local/.ssh/id_rsa.pub)
             echo
             echo Environment variables:
             env
@@ -97,20 +99,20 @@ jobs:
             echo
             az deployment sub create \
               --name AKS_IoT_K3S_deploy \
-              --location $LOCATION \
-              --template-file $GITHUB_WORKSPACE/deployment/bicep/main.bicep \
-              --parameters resourceGroupName=$RESOURCE_GROUP_NAME \
-                           onpremResourceGroupName=$ONPREM_RESOURCE_GROUP_NAME \
-                           environmentType=$ENVIRONMENT_TYPE \
-                           aksDeployment=$AKS_DEPLOYMENT \
-                           iotDeployment=$IOT_DEPLOYMENT \
-                           vmDeployment=$VM_DEPLOYMENT \
+              --location ${LOCATION} \
+              --template-file ${GITHUB_WORKSPACE}/deployment/bicep/main.bicep \
+              --parameters resourceGroupName=${RESOURCE_GROUP_NAME} \
+                           onpremResourceGroupName=${ONPREM_RESOURCE_GROUP_NAME} \
+                           environmentType=${ENVIRONMENT_TYPE} \
+                           aksDeployment=${AKS_DEPLOYMENT} \
+                           iotDeployment=${IOT_DEPLOYMENT} \
+                           vmDeployment=${VM_DEPLOYMENT} \
                            aksClientId=${{ secrets.AKS_CLIENT_ID }} \
                            aksClientSecret=${{ secrets.AKS_CLIENT_SECRET }} \
-                           fileShareType=$FILE_SHARE_TYPE \
-                           dpsDeployment=$DPS_DEPLOYMENT \
+                           fileShareType=${FILE_SHARE_TYPE} \
+                           dpsDeployment=${DPS_DEPLOYMENT} \
                            cloudInitScriptUri=${{ secrets.CLOUD_INIT_SCRIPT_URI }} \
-                           sshRSAPublicKey="$MY_SSH_RSA_PUBLIC_KEY"
+                           sshRSAPublicKey="${SSH_RSA_PUBLIC_KEY}"
             
             echo
             echo Saving Bicep deployment outputs ...
@@ -142,7 +144,7 @@ jobs:
       - name: Download SSH artifact
         uses: actions/download-artifact@v2
         with:
-          name: id_rsa
+          name: SSH-private-key
 
       - name: Login via Azure CLI
         uses: azure/login@v1
