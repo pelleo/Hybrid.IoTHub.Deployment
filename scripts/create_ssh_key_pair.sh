@@ -14,8 +14,6 @@ if [[ -z ${local_repo_root} ]]; then
     # Use below syntax rather than script_path=`pwd` for proper 
     # handling of edge cases like spaces and symbolic links.
     script_path="$(cd -- "$(dirname "${0}")" >/dev/null 2>&1; pwd -P)"
-    #local_parent_dir=${script_path%${repo_name}*}
-    #local_repo_root=${local_parent_dir}/${repo_name}
     local_repo_root=${script_path%${repo_name}*}${repo_name}
 fi
 

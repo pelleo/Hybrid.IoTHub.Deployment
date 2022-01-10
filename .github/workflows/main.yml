@@ -88,8 +88,15 @@ jobs:
             echo Disks:
             df
 
-            # Overwrite environment v ariable with locally created keys.
+            # Overwrite environment variable with locally created keys.
             export SSH_RSA_PUBLIC_KEY=$(cat ./local/.ssh/id_rsa.pub)
+
+            # Create cloud init script URI.
+            export CLOUD_INIT_SCRIPT_URI=https://raw.githubusercontent.com/${GITHUB_ACTOR}/Hybrid.IoTHub.Deployment/main/deployment/bicep/modules/create_cloud_init_input_string_bicep.sh
+            
+            # Set local repo root.
+            export LOCAL_REPO_ROOT=${GITHUB_WORKSPACE}
+            
             echo
             echo Environment variables:
             env
@@ -100,15 +107,15 @@ jobs:
             az deployment sub create \
               --name AKS_IoT_K3S_deploy \
               --location ${LOCATION} \
-              --template-file ${GITHUB_WORKSPACE}/deployment/bicep/main.bicep \
+              --template-file ${LOCAL_REPO_ROOT}/deployment/bicep/main.bicep \
               --parameters resourceGroupName=${RESOURCE_GROUP_NAME} \
                            onpremResourceGroupName=${ONPREM_RESOURCE_GROUP_NAME} \
                            environmentType=${ENVIRONMENT_TYPE} \
                            aksDeployment=${AKS_DEPLOYMENT} \
                            iotDeployment=${IOT_DEPLOYMENT} \
                            vmDeployment=${VM_DEPLOYMENT} \
-                           aksClientId=${{ secrets.AKS_CLIENT_ID }} \
-                           aksClientSecret=${{ secrets.AKS_CLIENT_SECRET }} \
+                           aksClientId=${AKS_CLIENT_ID} \
+                           aksClientSecret=${AKS_CLIENT_SECRET} \
                            fileShareType=${FILE_SHARE_TYPE} \
                            dpsDeployment=${DPS_DEPLOYMENT} \
                            cloudInitScriptUri=${CLOUD_INIT_SCRIPT_URI} \
@@ -121,7 +128,8 @@ jobs:
               --name AKS_IoT_K3S_deploy \
               --query properties.outputs > deployment-output.txt
         env:
-          CLOUD_INIT_SCRIPT_URI: ${{ secrets.CLOUD_INIT_SCRIPT_URI }}
+          AKS_CLIENT_ID: ${{ secrets.AKS_CLIENT_ID }}
+          AKS_CLIENT_SECRET : ${{ secrets.AKS_CLIENT_SECRET }}
           SSH_RSA_PUBLIC_KEY: ${{ secrets.SSH_RSA_PUBLIC_KEY }}
 
       # Save Bicep output for later reference
