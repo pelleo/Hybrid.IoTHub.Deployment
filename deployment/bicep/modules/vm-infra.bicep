@@ -2,7 +2,7 @@ param environmentType string
 param linuxAdminUsername string
 //@secure()
 param sshRSAPublicKey string
-param  cloudInitScriptUri string
+param cloudInitScriptUri string
 param dnsLabelPrefix string
 param location string
 

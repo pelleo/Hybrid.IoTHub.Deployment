@@ -43,6 +43,18 @@ jobs:
           echo
           ./scripts/create_ssh_key_pair.sh
 
+      - name: Save SSH public key
+        uses: actions/upload-artifact@v2
+        with:
+          name: id_rsa.pub
+          path: ./local/.ssh/id_rsa.pub
+
+      - name: Save SSH private key
+        uses: actions/upload-artifact@v2
+        with:
+          name: id_rsa
+          path: ./local/.ssh/id_rsa
+
       - name: Login via Azure CLI
         uses: azure/login@v1
         with:
@@ -125,6 +137,11 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: bicep-output
+
+      - name: Download SSH artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: id_rsa.pub
 
       - name: Login via Azure CLI
         uses: azure/login@v1
