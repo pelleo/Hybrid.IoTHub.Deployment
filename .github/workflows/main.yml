@@ -111,7 +111,7 @@ jobs:
                            aksClientSecret=${{ secrets.AKS_CLIENT_SECRET }} \
                            fileShareType=${FILE_SHARE_TYPE} \
                            dpsDeployment=${DPS_DEPLOYMENT} \
-                           cloudInitScriptUri=${{ secrets.CLOUD_INIT_SCRIPT_URI }} \
+                           cloudInitScriptUri=${CLOUD_INIT_SCRIPT_URI} \
                            sshRSAPublicKey="${SSH_RSA_PUBLIC_KEY}"
             
             echo
@@ -120,6 +120,9 @@ jobs:
             az deployment sub show \
               --name AKS_IoT_K3S_deploy \
               --query properties.outputs > deployment-output.txt
+        env:
+          CLOUD_INIT_SCRIPT_URI: ${{ secrets.CLOUD_INIT_SCRIPT_URI }}
+          SSH_RSA_PUBLIC_KEY: ${{ secrets.SSH_RSA_PUBLIC_KEY }}
 
       # Save Bicep output for later reference
       - name: Save Bicep output
