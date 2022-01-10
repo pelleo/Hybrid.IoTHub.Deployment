@@ -87,6 +87,7 @@ jobs:
             echo
             echo Disks:
             df
+            export MY_SSH_RSA_PUBLIC_KEY=$(cat ./local/.ssh/id_rsa.pub)
             echo
             echo Environment variables:
             env
@@ -141,7 +142,7 @@ jobs:
       - name: Download SSH artifact
         uses: actions/download-artifact@v2
         with:
-          name: id_rsa.pub
+          name: id_rsa
 
       - name: Login via Azure CLI
         uses: azure/login@v1
@@ -163,6 +164,9 @@ jobs:
           echo
           echo ${GITHUB_WORKSPACE}:
           ls -al
+          echo
+          echo id_rsa:
+          cat ./id_rsa
           echo
           echo User context:
           whoami
