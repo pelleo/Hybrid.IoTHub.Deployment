@@ -84,7 +84,7 @@ jobs:
 
             # Overwrite environment variable with locally created keys.
             #export SSH_RSA_PUBLIC_KEY=$(cat ./local/.ssh/id_rsa.pub)
-            export  SSH_RSA_PUBLIC_KEY:=${{ secrets.SSH_RSA_PUBLIC_KEY }}
+            export  SSH_RSA_PUBLIC_KEY=${{ secrets.SSH_RSA_PUBLIC_KEY }}
 
             # Create cloud init script URI.
             export CLOUD_INIT_SCRIPT_URI=https://raw.githubusercontent.com/${GITHUB_ACTOR}/Hybrid.IoTHub.Deployment/main/deployment/bicep/modules/create_cloud_init_input_string_bicep.sh
