@@ -113,7 +113,7 @@ jobs:
                            fileShareType=SMB \
                            dpsDeployment=no \
                            cloudInitScriptUri=${CLOUD_INIT_SCRIPT_URI} \
-                           sshRSAPublicKey=${{ secrets.SSH_RSA_PUBLIC_KEY }}
+                           sshRSAPublicKey=\"${SSH_RSA_PUBLIC_KEY}\"
 
             echo
             echo Saving Bicep deployment outputs ...
@@ -124,6 +124,7 @@ jobs:
         env:
           AKS_CLIENT_ID: ${{ secrets.AKS_CLIENT_ID }}
           AKS_CLIENT_SECRET : ${{ secrets.AKS_CLIENT_SECRET }}
+          SSH_RSA_PUBLIC_KEY: ${{ secrets.SSH_RSA_PUBLIC_KEY }}
 
       # Save Bicep output for later reference
       - name: Save Bicep output
