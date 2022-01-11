@@ -1,0 +1,50 @@
+#!/bin/bash
+
+set -eo pipefail
+
+# Used only for pruning path to repository root.  Should be 
+# regarded as a local constant unless project is renamed.
+repo_name=Hybrid.IoTHub.Deployment
+
+# Silently continue if env var does not exist.
+local_repo_root=${GITHUB_WORKSPACE}
+
+# Use location of current script to get local repo root if not executed by GitHub build agents.
+if [[ -z ${local_repo_root} ]]; then
+    # Use below syntax rather than script_path=`pwd` for proper 
+    # handling of edge cases like spaces and symbolic links.
+    script_path="$(cd -- "$(dirname "${0}")" >/dev/null 2>&1; pwd -P)"
+    local_repo_root=${script_path%${repo_name}*}${repo_name}
+fi
+
+echo
+echo Local repo root:
+echo ${local_repo_root}
+echo
+
+echo
+echo Creating Azure resources ...
+echo
+az deployment sub create \
+    --name AKS_IoT_K3S_deploy \
+    --location ${LOCATION} \
+    --template-file ${local_repo_root}/deployment/bicep/main.bicep \
+    --parameters resourceGroupName=${AKS_RG_NAME} \
+                 onpremResourceGroupName=${K3S_RG_NAME} \
+                 environmentType=dev \
+                 aksDeployment=yes \
+                 iotDeployment=yes \
+                 vmDeployment=yes \
+                 aksClientId=${AKS_CLIENT_ID} \
+                 aksClientSecret=${AKS_CLIENT_SECRET} \
+                 fileShareType=SMB \
+                 dpsDeployment=no \
+                 cloudInitScriptUri=${CLOUD_INIT_SCRIPT_URI} \
+                 sshRSAPublicKey="${SSH_RSA_PUBLIC_KEY}"
+
+echo
+echo Saving Bicep deployment outputs ...
+echo
+az deployment sub show \
+    --name AKS_IoT_K3S_deploy \
+    --query properties.outputs > ${local_repo_root}/local/deployment-output.txt

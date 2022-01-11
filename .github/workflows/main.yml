@@ -82,46 +82,47 @@ jobs:
             echo Disks:
             df
 
-            # Overwrite environment variable with locally created keys.
+            # SSH public key to be used by K8s hosts (AKS and K3s).
             #export SSH_RSA_PUBLIC_KEY=$(cat ./local/.ssh/id_rsa.pub)
             export  SSH_RSA_PUBLIC_KEY=${{ secrets.SSH_RSA_PUBLIC_KEY }}
 
             # Create cloud init script URI.
             export CLOUD_INIT_SCRIPT_URI=https://raw.githubusercontent.com/${GITHUB_ACTOR}/Hybrid.IoTHub.Deployment/main/deployment/bicep/modules/create_cloud_init_input_string_bicep.sh
             
-            # Set local repo root.
-            export LOCAL_REPO_ROOT=${GITHUB_WORKSPACE}
+            ## Set local repo root.
+            #export LOCAL_REPO_ROOT=${GITHUB_WORKSPACE}
 
             echo
             echo Environment variables:
             env
+            
+            #echo
+            #echo Creating Azure resources ...
+            #echo
+            #az deployment sub create \
+            #  --name AKS_IoT_K3S_deploy \
+            #  --location ${LOCATION} \
+            #  --template-file ${LOCAL_REPO_ROOT}/deployment/bicep/main.bicep \
+            #  --parameters resourceGroupName=${AKS_RG_NAME} \
+            #               onpremResourceGroupName=${K3S_RG_NAME} \
+            #               environmentType=dev \
+            #               aksDeployment=yes \
+            #               iotDeployment=yes \
+            #               vmDeployment=yes \
+            #               aksClientId=${AKS_CLIENT_ID} \
+            #               aksClientSecret=${AKS_CLIENT_SECRET} \
+            #               fileShareType=SMB \
+            #               dpsDeployment=no \
+            #               cloudInitScriptUri=${CLOUD_INIT_SCRIPT_URI} \
+            #               sshRSAPublicKey="${SSH_RSA_PUBLIC_KEY}"
 
-            echo
-            echo Creating Azure resources ...
-            echo
-            az deployment sub create \
-              --name AKS_IoT_K3S_deploy \
-              --location ${LOCATION} \
-              --template-file ${LOCAL_REPO_ROOT}/deployment/bicep/main.bicep \
-              --parameters resourceGroupName=${AKS_RG_NAME} \
-                           onpremResourceGroupName=${K3S_RG_NAME} \
-                           environmentType=dev \
-                           aksDeployment=yes \
-                           iotDeployment=yes \
-                           vmDeployment=yes \
-                           aksClientId=${AKS_CLIENT_ID} \
-                           aksClientSecret=${AKS_CLIENT_SECRET} \
-                           fileShareType=SMB \
-                           dpsDeployment=no \
-                           cloudInitScriptUri=${CLOUD_INIT_SCRIPT_URI} \
-                           sshRSAPublicKey="${SSH_RSA_PUBLIC_KEY}"
-
-            echo
-            echo Saving Bicep deployment outputs ...
-            echo
-            az deployment sub show \
-              --name AKS_IoT_K3S_deploy \
-              --query properties.outputs > ./local/deployment-output.txt
+            #echo
+            #echo Saving Bicep deployment outputs ...
+            #echo
+            #az deployment sub show \
+            #  --name AKS_IoT_K3S_deploy \
+            #  --query properties.outputs > ./local/deployment-output.txt
+            ./scripts/create_infra.sh
         env:
           AKS_CLIENT_ID: ${{ secrets.AKS_CLIENT_ID }}
           AKS_CLIENT_SECRET : ${{ secrets.AKS_CLIENT_SECRET }}
