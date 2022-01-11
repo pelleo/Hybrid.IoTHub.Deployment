@@ -67,9 +67,6 @@ echo ${HOME}/.kube:
 ls -al ${HOME}/.kube
 argocd login ${server} --password ${argocd_auto_pwd} --username ${argocd_admin} --insecure
 
-# Install sample application.  New login required since credentials changed.
-#argocd login ${server} --password ${argocd_pwd}  --username ${argocd_admin} --insecure
-
 echo 
 echo Creating guestbook sample app ...
 echo 
