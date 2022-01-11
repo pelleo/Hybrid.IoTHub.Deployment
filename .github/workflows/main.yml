@@ -60,24 +60,31 @@ jobs:
           inlineScript: |
             echo
             echo Printing general info about the Az CLI shell ...
+
             echo
             echo Current directory:
             pwd
+
             echo
             echo GITHUB_WORKSPACE:
             echo ${GITHUB_WORKSPACE}
+
             echo
             echo ${GITHUB_WORKSPACE}:
             ls -al
+
             echo
             echo ${GITHUB_WORKSPACE}/local/.ssh:
             ls -al ./local/.ssh
+
             echo
             echo User context:
             whoami
+
             echo
             echo Home directory:
             echo ${HOME}
+
             echo
             echo Disks:
             df
@@ -88,40 +95,12 @@ jobs:
 
             # Create cloud init script URI.
             export CLOUD_INIT_SCRIPT_URI=https://raw.githubusercontent.com/${GITHUB_ACTOR}/Hybrid.IoTHub.Deployment/main/deployment/bicep/modules/create_cloud_init_input_string_bicep.sh
-            
-            ## Set local repo root.
-            #export LOCAL_REPO_ROOT=${GITHUB_WORKSPACE}
 
             echo
             echo Environment variables:
             env
             
-            #echo
-            #echo Creating Azure resources ...
-            #echo
-            #az deployment sub create \
-            #  --name AKS_IoT_K3S_deploy \
-            #  --location ${LOCATION} \
-            #  --template-file ${LOCAL_REPO_ROOT}/deployment/bicep/main.bicep \
-            #  --parameters resourceGroupName=${AKS_RG_NAME} \
-            #               onpremResourceGroupName=${K3S_RG_NAME} \
-            #               environmentType=dev \
-            #               aksDeployment=yes \
-            #               iotDeployment=yes \
-            #               vmDeployment=yes \
-            #               aksClientId=${AKS_CLIENT_ID} \
-            #               aksClientSecret=${AKS_CLIENT_SECRET} \
-            #               fileShareType=SMB \
-            #               dpsDeployment=no \
-            #               cloudInitScriptUri=${CLOUD_INIT_SCRIPT_URI} \
-            #               sshRSAPublicKey="${SSH_RSA_PUBLIC_KEY}"
-
-            #echo
-            #echo Saving Bicep deployment outputs ...
-            #echo
-            #az deployment sub show \
-            #  --name AKS_IoT_K3S_deploy \
-            #  --query properties.outputs > ./local/deployment-output.txt
+            # Create Azure resoures.
             ./scripts/create_infra.sh
         env:
           AKS_CLIENT_ID: ${{ secrets.AKS_CLIENT_ID }}
@@ -161,36 +140,47 @@ jobs:
         run: |
           echo
           lsb_release -a
+
           echo
           echo Printing general info about runner shell ...
+
           echo
           echo Current directory:
           pwd
+
           echo
           echo GITHUB_WORKSPACE:
           echo ${GITHUB_WORKSPACE}
+
           echo
           echo ${GITHUB_WORKSPACE}:
           ls -al
+
           echo
           echo id_rsa:
           cat ./id_rsa
+
           echo
           echo User context:
           whoami
+
           echo
           echo Home directory:
           echo ${HOME}
+
           echo
           echo ${HOME}:
           ls -al ${HOME}
+
           echo
           echo Disks:
           df
+
           echo
           echo Environment variables:
           env
 
+          # Set up SSH infra on build agents.
           mkdir -p local
           mkdir -p local/.ssh
           chmod 700 local/.ssh
@@ -205,6 +195,7 @@ jobs:
           echo Verifying SSH directories ...
           echo ./local/.ssh:
           ls -al ./local/.ssh
+
           echo
           echo ${HOME}/.ssh:
           ls -al ${HOME}/.ssh
@@ -221,9 +212,11 @@ jobs:
           echo Verifying kubernetes settings ...
           echo KUBECONFIG_DIR:
           echo ${KUBECONFIG_DIR}
+
           echo
           echo K3S_HOST:
           echo ${K3S_HOST}
+
           echo
           echo ${HOME}:
           ls -al ${HOME}
@@ -236,6 +229,7 @@ jobs:
           echo Verifying download ...
           echo ${KUBECONFIG_DIR}:
           ls -al ${KUBECONFIG_DIR}
+
           echo
           echo Downloaded kubeconfig:
           echo
@@ -302,12 +296,14 @@ jobs:
         run: |
           # Ignore non-zero exit from configure_argocd.sh
           set +e
-          echo Configuring Argo CD for first time use ...
+          
           export K3S_HOST=$(cat deployment-output.txt | jq -r '.fqdn.value')
           echo
           echo K3s host:
           echo ${K3S_HOST}
+
           echo
+          echo Configuring Argo CD for first time use ...
           ./scripts/configure_argocd.sh
         env:
           ARGOCD_PWD: ${{ secrets.ARGOCD_PWD }}
