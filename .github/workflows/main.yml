@@ -190,8 +190,6 @@ jobs:
           echo Environment variables:
           env
 
-          echo
-          echo Creating SSH infrastructure ...
           mkdir -p local
           mkdir -p local/.ssh
           chmod 700 local/.ssh
@@ -202,6 +200,7 @@ jobs:
           touch ${HOME}/.ssh/known_hosts
           chmod 600 ${HOME}/.ssh/known_hosts
 
+          echo
           echo Verifying SSH directories ...
           echo ./local/.ssh:
           ls -al ./local/.ssh
@@ -213,12 +212,11 @@ jobs:
 
       - name: Download K3s and AKS kubeconfig
         run: |
-          echo
-          echo Configuring K3s prerequisites ...
           export KUBECONFIG_DIR=${HOME}/.kube
           export K3S_HOST=$(cat deployment-output.txt | jq -r '.fqdn.value')
           mkdir -p ${KUBECONFIG_DIR}
 
+          echo
           echo Verifying kubernetes settings ...
           echo KUBECONFIG_DIR:
           echo ${KUBECONFIG_DIR}

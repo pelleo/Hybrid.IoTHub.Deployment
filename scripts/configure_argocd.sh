@@ -18,6 +18,7 @@ argocd_pwd=${ARGOCD_PWD}
 argocd_app_path=clusters/k3s/guestbook
 
 # K3s kubeconfig context required when configuring ArgoCD.
+echo K8s contexts:
 kubectl config get-contexts -o name
 kubectl config use-context default
 
@@ -51,7 +52,6 @@ kubectl -n ${argocd_namespace} get all
 # Retrieve random password generated during ArgoCD installation.
 echo 
 echo Initial Argo CD password:
-echo 
 argocd_auto_pwd=$(kubectl -n ${argocd_namespace} get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 echo ${argocd_auto_pwd}
 
@@ -66,12 +66,6 @@ echo
 echo ${HOME}/.kube:
 ls -al ${HOME}/.kube
 argocd login ${server} --password ${argocd_auto_pwd} --username ${argocd_admin} --insecure
-
-echo 
-#echo Changing Argo CD password ...
-echo 
-sleep 5
-#argocd account update-password --current-password ${argocd_auto_pwd} --new-password ${argocd_pwd} --insecure
 
 # Install sample application.  New login required since credentials changed.
 #argocd login ${server} --password ${argocd_pwd}  --username ${argocd_admin} --insecure
@@ -96,3 +90,9 @@ argocd cluster add demo-aks
 
 # Allow direct external access (no port-forwarding required).  MUST INSTALL LOADBALANCER RESOURCE!!!  NodePort will not work in Azure!!!
 #kubectl patch svc/${ARGOCD_SERVER_SVC_NAME} -n ${ARGOCD_NAMESPACE} -p '{"spec": {"type": "LoadBalancer"}}'
+
+echo 
+echo Changing Argo CD password ...
+echo 
+sleep 5
+argocd account update-password --current-password ${argocd_auto_pwd} --new-password ${argocd_pwd} --insecure
