@@ -113,7 +113,7 @@ jobs:
                            fileShareType=SMB \
                            dpsDeployment=no \
                            cloudInitScriptUri=${CLOUD_INIT_SCRIPT_URI} \
-                           sshRSAPublicKey=\"${SSH_RSA_PUBLIC_KEY}\"
+                           sshRSAPublicKey="${SSH_RSA_PUBLIC_KEY}""
 
             echo
             echo Saving Bicep deployment outputs ...
