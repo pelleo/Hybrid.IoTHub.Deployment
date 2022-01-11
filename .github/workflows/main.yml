@@ -304,6 +304,10 @@ jobs:
           set +e
           echo Configuring Argo CD for first time use ...
           export K3S_HOST=$(cat deployment-output.txt | jq -r '.fqdn.value')
+          echo
+          echo K3s host:
+          echo ${K3S_HOST}
+          echo
           ./scripts/configure_argocd.sh
         env:
           ARGOCD_PWD: ${{ secrets.ARGOCD_PWD }}
