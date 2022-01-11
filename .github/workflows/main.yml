@@ -21,14 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       LOCATION: westeurope
-      RESOURCE_GROUP_NAME: rg-aks-demo
-      ONPREM_RESOURCE_GROUP_NAME: rg-k3s-demo
-      ENVIRONMENT_TYPE: dev
-      AKS_DEPLOYMENT: yes
-      IOT_DEPLOYMENT: yes
-      VM_DEPLOYMENT: yes
-      DPS_DEPLOYMENT: no
-      FILE_SHARE_TYPE: SMB
+      AKS_RG_NAME: rg-aks-demo
+      K3S_RG_NAME: rg-k3s-demo
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -108,25 +102,25 @@ jobs:
               --name AKS_IoT_K3S_deploy \
               --location ${LOCATION} \
               --template-file ${LOCAL_REPO_ROOT}/deployment/bicep/main.bicep \
-              --parameters resourceGroupName=${RESOURCE_GROUP_NAME} \
-                           onpremResourceGroupName=${ONPREM_RESOURCE_GROUP_NAME} \
-                           environmentType=${ENVIRONMENT_TYPE} \
-                           aksDeployment=${AKS_DEPLOYMENT} \
-                           iotDeployment=${IOT_DEPLOYMENT} \
-                           vmDeployment=${VM_DEPLOYMENT} \
+              --parameters resourceGroupName=${AKS_RG_NAME} \
+                           onpremResourceGroupName=${K3S_RG_NAME} \
+                           environmentType=dev \
+                           aksDeployment=yes \
+                           iotDeployment=yes \
+                           vmDeployment=yes \
                            aksClientId=${AKS_CLIENT_ID} \
                            aksClientSecret=${AKS_CLIENT_SECRET} \
-                           fileShareType=${FILE_SHARE_TYPE} \
-                           dpsDeployment=${DPS_DEPLOYMENT} \
+                           fileShareType=SMB \
+                           dpsDeployment=no \
                            cloudInitScriptUri=${CLOUD_INIT_SCRIPT_URI} \
                            sshRSAPublicKey=${{ secrets.SSH_RSA_PUBLIC_KEY }}
-            
+
             echo
             echo Saving Bicep deployment outputs ...
             echo
             az deployment sub show \
               --name AKS_IoT_K3S_deploy \
-              --query properties.outputs > deployment-output.txt
+              --query properties.outputs > ./local/deployment-output.txt
         env:
           AKS_CLIENT_ID: ${{ secrets.AKS_CLIENT_ID }}
           AKS_CLIENT_SECRET : ${{ secrets.AKS_CLIENT_SECRET }}
@@ -136,7 +130,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: bicep-output
-          path: deployment-output.txt
+          path: ./local/deployment-output.txt
 
   # The "configure" job sets up Argo CD for initial use
   configure:
