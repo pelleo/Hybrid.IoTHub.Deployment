@@ -47,13 +47,16 @@ To be able to communicate with your GitHub repository you need to create a [pers
 
 Open a bash client and clone the forked repository to your local workstation:
 ```
+# Your GitHub username will be used by the deployment scripts.
+export GIT_HUB_USERNAME=<your GitHub username>
+
 # Navigate to home directory.
-$ cd
+cd
 
 # Create a directory in which you want to create local copy of your forked repo.
-$ mkdir -p repos
-$ cd repos
-$ git clone https://github.com/<your_username>/Hybrid.IoTHub.Deployment.git
+mkdir -p repos
+cd repos
+git clone https://github.com/${GIT_HUB_USERNAME}/Hybrid.IoTHub.Deployment.git
 ```
 Substitute `<your_username>` with your actual GitHub username.  When prompted, enter your GitHub username.  For password, use your recently created personal access token.
 
@@ -61,25 +64,27 @@ Substitute `<your_username>` with your actual GitHub username.  When prompted, e
 In order for the pipeline and the AKS cluster to function properly it is necessary to create a service principal.  This service principal (SP) will serve as a "catch all" whenever there is a need for a service principal.  It will be granted owner/contributor rights at the subscription level.  *It is strongly advised not to create this service principal in a subscription that is used for production purposes*.  Note the `--sdk-auth` switch in the SP creation command.  It is used to output the SP credentials in format that is needed when setting up Git Actions.
 ```
 # Create service principal for Azure authentication (output is compatible with Azure SDK auth file).
-sdk_auth=$(az ad sp create-for-rbac --role Owner --sdk-auth)
+AZURE_CREDENTIALS=$(az ad sp create-for-rbac --role Contributor --sdk-auth)
 
-# Copy the entire JSON output to a scratch pad as it will be required when setting up Git Actions.
-echo ${sdk_auth} | jq
+# Save entire JSON output as it will be required when setting up Git Actions.
+echo ${AZURE_CREDENTIALS} | jq
 
-# Record client ID and client secret.  This will be used when assigning an SP to the AKS service.
-client_id=$(echo ${sdk_auth} | jq -r '.clientId')
-client_secret=$(echo ${sdk_auth} | jq -r '.clientSecret')
-echo ${client_id}
-echo ${client_secret}
+# Save client ID and client secret.  This will be used when assigning an SP to the AKS service.
+export AKS_CLIENT_ID=$(echo ${AZURE_CREDENTIALS} | jq -r '.clientId')
+export AKS_CLIENT_SECRET=$(echo ${AZURE_CREDENTIALS} | jq -r '.clientSecret')
+
+echo ${AKS_CLIENT_ID}
+echo ${AKS_CLIENT_SECRET}
 ```
-**Note:** Do not close this terminal window, since the shell variables will be needed when configuring GitHub secrets.
+**Note:** Do not close this terminal window, since the environment variables will be needed when configuring GitHub secrets.
 
 # Create SSH key pair
 We will generate an SSH key pair specifically for logging in to the AKS and K3s host VMs in Azure via SSH. Navigate to the `scripts` directory.  Run
 ```
-$ ./create_ssh_key_pair.sh
+./create_ssh_key_pair.sh
 ```
-Leave the input empty when prompted for a password.  This will create a private and a public key in the `local/.ssh` directory.
+This will create a private and a public key in the `local/.ssh` directory.  There is also a third file created, `id_rsa_github_secret`, which contains the private key
+formatted in way that is suitable for storing the key as a GitHub secret.
 
 **Note:**  The `local` folder and its subfolders are not uploaded to GitHub.
 
@@ -89,41 +94,48 @@ If not already logged in to GitHub, do so now and navigate to the recently forke
 - `AKS_CLIENT_ID`
 - `AKS_CLIENT_SECRET`
 - `SSH_RSA_PUBLIC_KEY` 
-- `CLOUD_INIT_SCRIPT_URI`
+- `SSH_RSA_PRIVATE_KEY`
 
 Before actually creating the GitHub secrets, make sure that you have the requisite information available by copying the output of the following commands:
 ```
 # Get value for AZURE_CREDENTIALS. Be sure to collect entire JSON object.
-echo ${sdk_auth} | jq
+echo ${AZURE_CREDENTIALS} | jq
 
 # Get value for AKS_CLIENT_ID
-echo ${client_id}
+echo ${AKS_CLIENT_ID}
 
 # Get value for AKS_CLIENT_SECRET
-echo ${client_secret}
+echo ${AKS_CLIENT_SECRET}
 ```
 
 The value of `SSH_RSA_PUBLIC_KEY` is available in `<your_local_repository_root>/local/.ssh/id_rsa.pub`.  If you created the `repos` folder in your bash home directory you can obtain the value as
 ```
 echo \'$(cat ~/repos/Hybrid.IoTHub.Deployment/local/.ssh/id_rsa.pub)\'
 ```
+Simiularly, the value of `SSH_RSA_PRIVATE_KEY` is obtained as
+```
+echo \'$(cat ~/repos/Hybrid.IoTHub.Deployment/local/.ssh/id_rsa_github_secret)\'
+```
+
 If you cloned the sample to a different location, make sure to use the proper path for `<your_local_repository_root>`
 
 To create the secrets, select `Settings` from the horizontal GitHub menu and then `Secrets`.  In turn, create:
 - Name: `AZURE_CREDENTIALS`
-  - Value: Paste in the saved copy of `${sdk_auth}`
+  - Value: Paste in the saved copy of `${AZURE_CREDENTIALS}`
 - Name: `AKS_CLIENT_ID`          
-  - Value: Paste in the saved copy of `${client_id}`
+  - Value: Paste in the saved copy of `${AKS_CLIENT_ID}`
 - Name: `AKS_CLIENT_SECRET`      
-  - Value: Paste in the saved copy of `${client_secret}`
+  - Value: Paste in the saved copy of `${AKS_CLIENT_SECRET}`
 - Name: `SSH_RSA_PUBLIC_KEY`     
   - Value: Paste in the contents of `<your_local_repository_root>/local/.ssh/id_rsa.pub`   
-- Name: `CLOUD_INIT_SCRIPT_URI`  
-  - Value: `https://raw.githubusercontent.com/<your_username>/Hybrid.IoTHub.Deployment/main/deployment/bicep/modules/create_cloud_init_input_string_bicep.sh`
+- Name: `SSH_RSA_PRIVATE_KEY`  
+  - Value: Paste in the contents of `<your_local_repository_root>/local/.ssh/id_rsa_github_secret` 
 
-Be sure to replace `<your_username>` and `<your_local_repository_root>` with the proper values.  The URI must point to the cloud-init script file.
+Be sure to replace `<your_local_repository_root>` with the proper value.  The URI must point to the cloud-init script file in your repository.
 
 **Note:** DO NOT forget the surrounding single quotes (`'`) when pasting the public SSH key.  Failure to do so will invariably lead to SSH login errors.
+
+**Note**: DO NOT use `id_rsa` when storing the private key as a GitHub secret.  Doing so will cause SSH login to fail.
 
 # Execute GitHub Actions workflow
 Select `Actions` from the menu at the top of the page and highlight `IoTHub Infrastructure Deployment` to launch the workflow.  Wait until the workflow terminates.  

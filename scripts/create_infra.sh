@@ -6,6 +6,13 @@ set -eo pipefail
 # regarded as a local constant unless project is renamed.
 repo_name=Hybrid.IoTHub.Deployment
 
+# Set GitHub username to locally defined env var GIT_HUB_USERNAME if running 
+# script locally; otherwise use predefined GitHub variable GITHUB_ACTOR.
+[[ -z ${GITHUB_ACTOR+x} ]]  && github_actor=${GIT_HUB_USERNAME}  || github_actor=${GITHUB_ACTOR} 
+
+# This URI must point to the cloud-init script in your GitHub repo.
+cloud_init_script_uri=https://raw.githubusercontent.com/${github_actor}/Hybrid.IoTHub.Deployment/main/deployment/bicep/modules/create_cloud_init_input_string_bicep.sh
+
 # Silently continue if env var does not exist.
 local_repo_root=${GITHUB_WORKSPACE}
 
@@ -18,12 +25,10 @@ if [[ -z ${local_repo_root} ]]; then
 fi
 
 echo
-echo Local repo root:
-echo ${local_repo_root}
-echo
+echo "Upgrading bicep ..."
+az bicep upgrade
 
-echo
-echo Creating Azure resources ...
+echo "Creating Azure resources ..."
 echo
 az deployment sub create \
     --name AKS_IoT_K3S_deploy \
@@ -39,11 +44,11 @@ az deployment sub create \
                  aksClientSecret=${AKS_CLIENT_SECRET} \
                  fileShareType=SMB \
                  dpsDeployment=no \
-                 cloudInitScriptUri=${CLOUD_INIT_SCRIPT_URI} \
+                 cloudInitScriptUri=${cloud_init_script_uri} \
                  sshRSAPublicKey="${SSH_RSA_PUBLIC_KEY}"
 
 echo
-echo Saving Bicep deployment outputs ...
+echo "Saving Bicep deployment outputs ..."
 echo
 az deployment sub show \
     --name AKS_IoT_K3S_deploy \

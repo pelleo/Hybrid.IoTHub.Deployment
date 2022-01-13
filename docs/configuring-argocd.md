@@ -6,7 +6,6 @@ Carry out the following steps in the same bash terminal that was used to downloa
 
 - Set the following environment variables:
   ```
-  export HYBRID_IOTHUB_REPO_URL=https://github.com/<your_username>/Hybrid.IoTHub.Deployment.git
   export ARGOCD_PWD=<your_argocd_password>
   ```
   Replace `<your_username>` with your actual GitHub username.  The URL must point to the root of the forked repository.  Any password will do as long as Argo CD accepts it.  It will be used when loggin on to the Argo CD UI.
