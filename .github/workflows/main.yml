@@ -19,10 +19,6 @@ jobs:
   deploy:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    env:
-      LOCATION: westeurope
-      AKS_RG_NAME: rg-aks-demo
-      K3S_RG_NAME: rg-k3s-demo
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -93,9 +89,6 @@ jobs:
             #export SSH_RSA_PUBLIC_KEY=$(cat ./local/.ssh/id_rsa.pub)
             export  SSH_RSA_PUBLIC_KEY=${{ secrets.SSH_RSA_PUBLIC_KEY }}
 
-            # Create cloud init script URI.
-            #export CLOUD_INIT_SCRIPT_URI=https://raw.githubusercontent.com/${GITHUB_ACTOR}/Hybrid.IoTHub.Deployment/main/deployment/bicep/modules/create_cloud_init_input_string_bicep.sh
-
             echo
             echo Environment variables:
             env
@@ -103,6 +96,9 @@ jobs:
             # Create Azure resoures.
             ./scripts/create_infra.sh
         env:
+          LOCATION: ${{ secrets.LOCATION }}
+          AKS_RG_NAME: ${{ secrets.AKS_RG_NAME }}
+          K3S_RG_NAME: ${{ secrets.K3S_RG_NAME }}
           AKS_CLIENT_ID: ${{ secrets.AKS_CLIENT_ID }}
           AKS_CLIENT_SECRET : ${{ secrets.AKS_CLIENT_SECRET }}
 
