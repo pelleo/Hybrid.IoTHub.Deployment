@@ -26,24 +26,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Create SSH key pair
-        run: | 
-          echo
-          echo Creating SSH key pair for K8s hosts ...
-          echo
-          ./scripts/create_ssh_key_pair.sh
+      # - name: Create SSH key pair
+      #   run: | 
+      #     echo
+      #     echo Creating SSH key pair for K8s hosts ...
+      #     echo
+      #     ./scripts/create_ssh_key_pair.sh
 
-      - name: Save SSH public key
-        uses: actions/upload-artifact@v2
-        with:
-          name: SSH-public-key
-          path: ./local/.ssh/id_rsa.pub
+      # - name: Save SSH public key
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: SSH-public-key
+      #     path: ./local/.ssh/id_rsa.pub
 
-      - name: Save SSH private key
-        uses: actions/upload-artifact@v2
-        with:
-          name: SSH-private-key
-          path: ./local/.ssh/id_rsa
+      # - name: Save SSH private key
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: SSH-private-key
+      #     path: ./local/.ssh/id_rsa
 
       - name: Login via Azure CLI
         uses: azure/login@v1
@@ -122,10 +122,10 @@ jobs:
         with:
           name: bicep-output
 
-      - name: Download SSH artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: SSH-private-key
+      # - name: Download SSH artifact
+      #   uses: actions/download-artifact@v2
+      #   with:
+      #     name: SSH-private-key
 
       - name: Login via Azure CLI
         uses: azure/login@v1
