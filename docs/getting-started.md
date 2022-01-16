@@ -272,15 +272,6 @@ kubectl cluster-info
 kubectl config use-context demo-aks
 kubectl cluster-info
 ```
-  
-Verify cluster access:
-```
-kubectl config get-contexts -o name
-kubectl config use-context default
-kubectl get nodes
-kubectl config use-context demo-aks
-kubectl get nodes
-```
 
 Finish verification by setting up port-forwarding to Argo CD.
 ```
