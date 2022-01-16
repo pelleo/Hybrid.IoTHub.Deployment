@@ -17,7 +17,7 @@ The second environment is an AKS cluster, which is meant to represent an "epheme
 - File services.  Default: `SMB`
 - Azure resource group: `rg-aks-demo`
 
-The Argo CD instance running on the K3s cluster is used to deploy K8s workloads on the AKS as well as the K3s cluster.  Both environments are created via [GitHub Actions](https://docs.github.com/en/actions) automation.
+The Argo CD instance running on the K3s cluster is used to deploy K8s workloads on the AKS as well as the K3s cluster.  Both environments can created via [GitHub Actions](https://docs.github.com/en/actions) automation or via manual script execution.
 
 # Documentation
 Documentation for the Hybrid.IoTHub.Deployment project can be found at:
