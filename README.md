@@ -23,4 +23,3 @@ The Argo CD instance running on the K3s cluster is used to deploy K8s workloads 
 Documentation for the Hybrid.IoTHub.Deployment project can be found at:
 - [Overview](docs/overview.md)
 - [Getting started](docs/getting-started.md)
-- [Configuring Argo CD](docs/configuring-argocd.md)
