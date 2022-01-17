@@ -292,4 +292,4 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 ```
 Next, set up port-forwarding and log on via the Web UI.  You can then add your repository and your AKS cluster using the admin GUI.  Finally, add the `guestbook` sample application following the [above](add-an-argo-cd-demo-application) instructions.
 
-The issue seems to be related to the Argo CLI login request sometimes being redirected to the Argo CD backend service instead of the frontend service, cf. [this](https://github.com/argoproj/argo-cd/issues/611) link.  The long term solution is to setup an external loadbalancer and patch the Argo CD service properly.
+The issue seems to be related to the Argo CLI login request sometimes being redirected to the Argo CD backend service instead of the frontend service, cf. [this](https://github.com/argoproj/argo-cd/issues/611) link.  The long term solution is to set up an external load balancer and patch the Argo CD service properly.
